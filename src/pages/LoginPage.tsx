@@ -4,6 +4,7 @@ import { motion } from 'motion/react'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Activity } from 'lucide-react'
+import { Alert } from '../components/Alert'
 
 export default function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth()
@@ -11,6 +12,7 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const from = (location.state as { from?: string } | null)?.from ?? '/dashboard'
   const [busy, setBusy] = useState(false)
+  const [error, setError] = useState('')
 
   if (loading) {
     return (
@@ -30,9 +32,11 @@ export default function LoginPage() {
 
   async function handleGoogle() {
     setBusy(true)
+    setError('')
     try {
       await signInWithGoogle()
     } catch {
+      setError('No account found for this Google account. Please sign up first.')
       setBusy(false)
     }
   }
@@ -47,21 +51,21 @@ export default function LoginPage() {
         }}
         aria-hidden="true"
       />
+      <button
+        type="button"
+        onClick={() => navigate(-1)}
+        aria-label="Go back"
+        className="absolute left-4 top-4 z-10 inline-flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-brand-500 md:left-8 md:top-8"
+      >
+        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+        Back
+      </button>
       <motion.div
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="relative w-full max-w-md rounded-3xl border border-ink-800 bg-ink-900/80 p-8 text-center shadow-xl backdrop-blur"
       >
-        <button
-          type="button"
-          onClick={() => navigate(-1)}
-          aria-label="Go back"
-          className="absolute left-4 top-4 inline-flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-brand-500"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back
-        </button>
         <div className="mb-6 flex items-center justify-center gap-2">
           <Activity className="h-8 w-8 text-brand-500" aria-hidden="true" />
           <span className="font-display text-3xl font-bold tracking-wide text-ink-100">
@@ -72,6 +76,11 @@ export default function LoginPage() {
           Welcome back
         </h1>
         <p className="mt-2 text-ink-400">Sign in with Google to continue.</p>
+        {error && (
+          <div className="mt-4">
+            <Alert variant="error">{error}</Alert>
+          </div>
+        )}
         <button
           type="button"
           onClick={handleGoogle}

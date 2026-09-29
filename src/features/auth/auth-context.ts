@@ -5,8 +5,10 @@ export interface AuthContextValue {
   session: Session | null
   user: User | null
   loading: boolean
+  loggingOut: boolean
   signInWithGoogle: () => Promise<void>
   signOut: () => Promise<void>
+  clearLoggingOut: () => void
 }
 
 export const AuthContext = createContext<AuthContextValue | undefined>(undefined)

@@ -7,6 +7,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [loggingOut, setLoggingOut] = useState(false)
 
   useEffect(() => {
     let active = true
@@ -42,15 +43,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signOut = useCallback(async () => {
+    setLoggingOut(true)
     const { error } = await supabase.auth.signOut()
-    if (error) throw error
+    if (error) {
+      setLoggingOut(false)
+      throw error
+    }
     setSession(null)
     setUser(null)
   }, [])
 
+  const clearLoggingOut = useCallback(() => setLoggingOut(false), [])
+
   const value = useMemo<AuthContextValue>(
-    () => ({ session, user, loading, signInWithGoogle, signOut }),
-    [session, user, loading, signInWithGoogle, signOut],
+    () => ({ session, user, loading, loggingOut, signInWithGoogle, signOut, clearLoggingOut }),
+    [session, user, loading, loggingOut, signInWithGoogle, signOut, clearLoggingOut],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

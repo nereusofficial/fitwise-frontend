@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
+import { supabase } from '../../../lib/supabaseClient'
 import { useAuth } from '../../../hooks/useAuth'
 import { useProfile } from '../../../hooks/useProfile'
 import { onboardingStep } from '../../../lib/animations'
@@ -123,8 +124,28 @@ export function Onboarding() {
     setError('')
     try {
       await signInWithGoogle()
-    } catch {
-      setError('Google sign-in failed. Please try again.')
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (!session) {
+        const code = new URLSearchParams(window.location.search).get('code')
+        if (code) {
+          const apiUrl = import.meta.env.VITE_API_URL
+          const res = await fetch(`${apiUrl}/api/auth/create-user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code }),
+          })
+          if (!res.ok) {
+            const body = await res.json().catch(() => null)
+            throw new Error(body?.error ?? 'Failed to create account')
+          }
+        } else {
+          throw new Error('No account found. Please try signing up.')
+        }
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Google sign-in failed. Please try again.')
       setBusy(false)
     }
   }

@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Link, NavLink, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Activity, LogOut, Menu, User, X } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Button } from './Button'
@@ -21,9 +21,16 @@ function navLinkClass({ isActive }: { isActive: boolean }) {
 }
 
 export function Navbar() {
-  const { user, signOut } = useAuth()
+  const { user, signOut, loggingOut, clearLoggingOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const navigate = useNavigate()
+  const location = useLocation()
+
+  useEffect(() => {
+    if (loggingOut && location.pathname === '/') {
+      clearLoggingOut()
+    }
+  }, [location.pathname, loggingOut, clearLoggingOut])
 
   async function handleSignOut() {
     await signOut()
