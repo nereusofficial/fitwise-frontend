@@ -1,10 +1,9 @@
 import { Link } from 'react-router-dom'
 import { Activity } from 'lucide-react'
-import { Disclaimer } from './Disclaimer'
 
 export function Footer() {
   return (
-    <footer className="border-t border-ink-200 bg-ink-50 dark:border-ink-800 dark:bg-ink-900">
+    <footer className="mt-auto border-t border-ink-800 bg-ink-900">
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid gap-8 md:grid-cols-3">
           <div>
@@ -37,10 +36,7 @@ export function Footer() {
             </ul>
           </div>
         </div>
-        <div className="mt-8">
-          <Disclaimer />
-        </div>
-        <p className="mt-6 text-center text-xs text-ink-400 dark:text-ink-500">
+        <p className="mt-8 text-center text-xs text-ink-400 dark:text-ink-500">
           &copy; {new Date().getFullYear()} FitWise. All rights reserved.
         </p>
       </div>
