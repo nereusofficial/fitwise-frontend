@@ -198,7 +198,7 @@ export function Onboarding() {
       <div className="relative w-full max-w-2xl">
         <button
           type="button"
-          onClick={() => navigate(-1)}
+          onClick={() => navigate('/')}
           aria-label="Go back"
           className="absolute -top-2 left-0 z-10 inline-flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-brand-500"
         >
