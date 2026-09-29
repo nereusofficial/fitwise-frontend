@@ -242,7 +242,7 @@ function HowItWorks() {
       <motion.div
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
+        viewport={{ margin: '-80px' }}
         variants={stagger}
         className="text-center"
       >
@@ -259,7 +259,7 @@ function HowItWorks() {
             key={step.number}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-60px' }}
+            viewport={{ margin: '-60px' }}
             variants={fadeUp}
             custom={i}
           >
@@ -286,7 +286,7 @@ function Features() {
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
+          viewport={{ margin: '-80px' }}
           variants={stagger}
           className="text-center"
         >
@@ -303,7 +303,7 @@ function Features() {
               key={feature.title}
               initial="hidden"
               whileInView="visible"
-              viewport={{ once: true, margin: '-60px' }}
+              viewport={{ margin: '-60px' }}
               variants={fadeUp}
               custom={i}
             >
@@ -343,7 +343,7 @@ function PlanPreview() {
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
+          viewport={{ margin: '-80px' }}
           variants={stagger}
         >
           <motion.span
@@ -379,7 +379,7 @@ function PlanPreview() {
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true, margin: '-80px' }}
+          viewport={{ margin: '-80px' }}
           variants={scaleIn}
         >
           <TiltCard intensity={6} className="overflow-hidden rounded-3xl border border-ink-800">
@@ -437,7 +437,7 @@ function Faq() {
       <motion.h2
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
+        viewport={{ margin: '-80px' }}
         variants={fadeUp}
         className="text-center font-display text-4xl font-bold tracking-wide text-ink-100 md:text-5xl"
       >
@@ -449,7 +449,7 @@ function Faq() {
             key={faq.question}
             initial="hidden"
             whileInView="visible"
-            viewport={{ once: true, margin: '-40px' }}
+            viewport={{ margin: '-40px' }}
             variants={fadeUp}
             custom={i}
           >
@@ -474,7 +474,7 @@ function FinalCta() {
       <motion.div
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: '-80px' }}
+        viewport={{ margin: '-80px' }}
         variants={scaleIn}
         className="relative overflow-hidden rounded-3xl border border-ink-800 bg-ink-900 px-6 py-20 text-center md:px-16"
       >

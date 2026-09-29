@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { Activity, LogOut, Menu, User, X } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Button } from './Button'
@@ -88,22 +88,12 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10" aria-label="Main navigation">
-        <Link
-          to="/"
-          className="flex shrink-0 cursor-pointer items-center gap-2"
-          onClick={() => {
-            setMenuOpen(false)
-            if (isHome) {
-              window.scrollTo({ top: 0, behavior: 'smooth' })
-            }
-          }}
-          aria-label="FitWise home"
-        >
+        <div className="flex shrink-0 items-center gap-2">
           <Activity className="h-7 w-7 text-brand-500" aria-hidden="true" />
           <span className="font-display text-2xl font-bold tracking-wide text-ink-100">
             FitWise
           </span>
-        </Link>
+        </div>
 
         <div className="hidden items-center gap-1 md:flex">
           {links.map((link) =>
