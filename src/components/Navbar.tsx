@@ -42,10 +42,10 @@ export function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4" aria-label="Main navigation">
+      <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10" aria-label="Main navigation">
         <Link
           to="/"
-          className="flex cursor-pointer items-center gap-2"
+          className="flex shrink-0 cursor-pointer items-center gap-2"
           onClick={() => {
             setMenuOpen(false)
             window.scrollTo({ top: 0, behavior: 'smooth' })
