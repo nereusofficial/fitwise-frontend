@@ -14,19 +14,23 @@ export default function LoginPage() {
   const from = (location.state as { from?: string } | null)?.from ?? '/dashboard'
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
-  const [oauthInitiated, setOauthInitiated] = useState(false)
+
+  const oauthCode = new URLSearchParams(location.search).get('code')
+  const oauthError = new URLSearchParams(location.search).get('error')
 
   useEffect(() => {
-    if (!oauthInitiated || user || loading) return
-    const params = new URLSearchParams(window.location.search)
-    const hasOauthCallback = params.has('code') || params.has('error') || params.has('error_description')
-    if (!hasOauthCallback) return
+    if (user || loading) return
+    if (oauthError) {
+      setError('No account found for this Google account. Please sign up first.')
+      return
+    }
+    if (!oauthCode) return
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         setError('No account found for this Google account. Please sign up first.')
       }
     })
-  }, [oauthInitiated, user, loading])
+  }, [oauthCode, oauthError, user, loading])
 
   if (loading) {
     return (
@@ -47,7 +51,6 @@ export default function LoginPage() {
   async function handleGoogle() {
     setBusy(true)
     setError('')
-    setOauthInitiated(true)
     try {
       await signInWithGoogle()
     } catch {

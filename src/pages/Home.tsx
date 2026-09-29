@@ -125,6 +125,7 @@ function Hero() {
 
   return (
     <section
+      id="hero"
       ref={ref}
       onMouseMove={handleMouse}
       className="relative flex min-h-screen items-center justify-center overflow-hidden"
@@ -237,7 +238,7 @@ function Hero() {
 
 function HowItWorks() {
   return (
-    <section className="relative mx-auto max-w-6xl px-4 py-28">
+    <section id="how-it-works" className="relative mx-auto max-w-6xl px-4 py-28">
       <motion.div
         initial="hidden"
         whileInView="visible"
@@ -280,7 +281,7 @@ function HowItWorks() {
 
 function Features() {
   return (
-    <section className="relative py-28">
+    <section id="features" className="relative py-28">
       <div className="mx-auto max-w-6xl px-4">
         <motion.div
           initial="hidden"
@@ -337,7 +338,7 @@ function Features() {
 
 function PlanPreview() {
   return (
-    <section className="relative mx-auto max-w-6xl px-4 py-28">
+    <section id="plan-preview" className="relative mx-auto max-w-6xl px-4 py-28">
       <div className="grid items-center gap-16 lg:grid-cols-2">
         <motion.div
           initial="hidden"
@@ -432,7 +433,7 @@ function PlanPreview() {
 
 function Faq() {
   return (
-    <section className="relative mx-auto max-w-3xl px-4 py-28">
+    <section id="faq" className="relative mx-auto max-w-3xl px-4 py-28">
       <motion.h2
         initial="hidden"
         whileInView="visible"
