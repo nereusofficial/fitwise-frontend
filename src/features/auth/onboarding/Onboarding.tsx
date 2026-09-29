@@ -140,8 +140,6 @@ export function Onboarding() {
             const body = await res.json().catch(() => null)
             throw new Error(body?.error ?? 'Failed to create account')
           }
-        } else {
-          throw new Error('No account found. Please try signing up.')
         }
       }
     } catch (err) {
