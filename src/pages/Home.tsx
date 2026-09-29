@@ -16,7 +16,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Button } from '../components/Button'
-import { TiltCard } from '../components/TiltCard'
 import { EASE, fadeUp, scaleIn, stagger } from '../lib/animations'
 
 const HERO_IMG =
@@ -263,7 +262,7 @@ function HowItWorks() {
             variants={fadeUp}
             custom={i}
           >
-            <TiltCard className="h-full rounded-3xl border border-ink-800 bg-ink-900 p-8">
+            <div className="h-full rounded-3xl border border-ink-800 bg-ink-900 p-8 transition-transform duration-300 hover:-translate-y-1">
               <span className="font-display text-7xl font-bold text-brand-500/20" aria-hidden="true">
                 {step.number}
               </span>
@@ -271,7 +270,7 @@ function HowItWorks() {
                 {step.title}
               </h3>
               <p className="mt-2 text-ink-400">{step.description}</p>
-            </TiltCard>
+            </div>
           </motion.div>
         ))}
       </div>
@@ -307,27 +306,23 @@ function Features() {
               variants={fadeUp}
               custom={i}
             >
-              <TiltCard className="group h-full overflow-hidden rounded-3xl border border-ink-800 bg-ink-900">
-                <div className="relative h-44 overflow-hidden bg-ink-800">
-                  <img
-                    src={feature.image}
-                    alt=""
-                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                    loading="lazy"
-                    onError={(e) => { e.currentTarget.style.display = 'none' }}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-ink-900 to-transparent" />
-                </div>
-                <div className="p-6">
-                  <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-500/15 text-brand-400">
-                    <feature.icon className="h-6 w-6" aria-hidden="true" />
+              <div className="group relative h-full overflow-hidden rounded-3xl border border-ink-800 bg-ink-900 transition-all duration-300 hover:-translate-y-1 hover:border-ink-700">
+                <div
+                  className="absolute inset-0 bg-cover bg-center transition-transform duration-500 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${feature.image})` }}
+                  aria-hidden="true"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/60 to-ink-900/20" />
+                <div className="relative flex h-full flex-col justify-end p-8">
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-ink-950/60 text-brand-400 backdrop-blur-sm">
+                    <feature.icon className="h-7 w-7" aria-hidden="true" />
                   </div>
                   <h3 className="font-display text-2xl font-semibold tracking-wide text-ink-100">
                     {feature.title}
                   </h3>
-                  <p className="mt-2 text-ink-400">{feature.description}</p>
+                  <p className="mt-2 text-ink-300">{feature.description}</p>
                 </div>
-              </TiltCard>
+              </div>
             </motion.div>
           ))}
         </div>
@@ -382,7 +377,7 @@ function PlanPreview() {
           viewport={{ margin: '-80px' }}
           variants={scaleIn}
         >
-          <TiltCard intensity={6} className="overflow-hidden rounded-3xl border border-ink-800">
+          <div className="overflow-hidden rounded-3xl border border-ink-800 transition-transform duration-300 hover:-translate-y-1">
             <div className="relative h-52 bg-ink-800">
               <img src={PLAN_IMG} alt="" className="h-full w-full object-cover" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} />
               <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/40 to-transparent" />
@@ -424,7 +419,7 @@ function PlanPreview() {
                 ))}
               </ul>
             </div>
-          </TiltCard>
+          </div>
         </motion.div>
       </div>
     </section>
