@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, ArrowRight, Check, Loader2, X } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
 import { supabase } from '../../../lib/supabaseClient'
 import { useAuth } from '../../../hooks/useAuth'
 import { useProfile } from '../../../hooks/useProfile'
@@ -218,8 +218,8 @@ export function Onboarding() {
             aria-label="Exit to home"
             className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-brand-500"
           >
-            <X className="h-4 w-4" aria-hidden="true" />
-            Exit
+            <ArrowLeft className="h-4 w-4" aria-hidden="true" />
+            Back
           </button>
           <p className="text-sm font-medium text-ink-400 dark:text-ink-500">
             Step {step + 1} of {totalSteps}
