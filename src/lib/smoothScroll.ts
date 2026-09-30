@@ -26,8 +26,8 @@ export function smoothScrollTo(targetY: number, options: SmoothScrollOptions = {
   const cancel = () => {
     cancelled = true
     cancelAnimationFrame(rafId)
-    window.removeEventListener('wheel', onCancel, { passive: true })
-    window.removeEventListener('touchstart', onCancel, { passive: true })
+    window.removeEventListener('wheel', onCancel)
+    window.removeEventListener('touchstart', onCancel)
     window.removeEventListener('keydown', onCancel)
   }
 
@@ -48,9 +48,9 @@ export function smoothScrollTo(targetY: number, options: SmoothScrollOptions = {
     if (progress < 1) {
       rafId = requestAnimationFrame(step)
     } else {
-      window.removeEventListener('wheel', cancel, { passive: true })
-      window.removeEventListener('touchstart', cancel, { passive: true })
-      window.removeEventListener('keydown', cancel)
+      window.removeEventListener('wheel', onCancel)
+      window.removeEventListener('touchstart', onCancel)
+      window.removeEventListener('keydown', onCancel)
       options.onDone?.()
     }
   }
