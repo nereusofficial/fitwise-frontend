@@ -126,7 +126,7 @@ export function Navbar() {
   }
 
   function navLinkClass(isActive: boolean) {
-    return `relative rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
+    return `relative cursor-pointer rounded-lg px-3 py-2 text-sm font-semibold transition-colors ${
       isActive ? 'text-brand-400' : 'text-ink-300 hover:text-ink-100'
     }`
   }
@@ -135,7 +135,7 @@ export function Navbar() {
     <header className="sticky top-0 z-50 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10" aria-label="Main navigation">
         <div
-          className="flex shrink-0 cursor-pointer items-center gap-2"
+          className="flex shrink-0 items-center gap-2"
           onClick={handleLogoClick}
           role="button"
           aria-label="FitWise home"
