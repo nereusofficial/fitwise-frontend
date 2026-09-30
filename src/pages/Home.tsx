@@ -127,7 +127,8 @@ function Hero() {
       id="hero"
       ref={ref}
       onMouseMove={handleMouse}
-      className="relative flex min-h-screen items-center justify-center overflow-hidden"
+      aria-labelledby="hero-heading"
+      className="relative flex min-h-[calc(100svh-4rem)] flex-col items-center justify-center overflow-hidden py-16 scroll-mt-16"
     >
       <motion.div style={{ y: bgY, scale: bgScale }} className="absolute inset-0">
         <img
@@ -159,6 +160,7 @@ function Hero() {
         </motion.div>
 
         <motion.h1
+          id="hero-heading"
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, ease: EASE, delay: 0.2 }}
@@ -237,7 +239,7 @@ function Hero() {
 
 function HowItWorks() {
   return (
-    <section id="how-it-works" className="relative mx-auto max-w-6xl px-4 py-28">
+    <section id="how-it-works" aria-labelledby="how-it-works-heading" className="relative mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-6xl flex-col justify-center px-4 py-16 scroll-mt-16">
       <motion.div
         initial="hidden"
         whileInView="visible"
@@ -245,7 +247,7 @@ function HowItWorks() {
         variants={stagger}
         className="text-center"
       >
-        <motion.h2 variants={fadeUp} className="font-display text-4xl font-bold tracking-wide text-ink-100 md:text-5xl">
+        <motion.h2 variants={fadeUp} id="how-it-works-heading" className="font-display text-4xl font-bold tracking-wide text-ink-100 md:text-5xl">
           How it works
         </motion.h2>
         <motion.p variants={fadeUp} className="mx-auto mt-3 max-w-xl text-ink-400">
@@ -280,7 +282,7 @@ function HowItWorks() {
 
 function Features() {
   return (
-    <section id="features" className="relative py-28">
+    <section id="features" aria-labelledby="features-heading" className="relative flex min-h-[calc(100svh-4rem)] flex-col justify-center py-16 scroll-mt-16">
       <div className="mx-auto max-w-6xl px-4">
         <motion.div
           initial="hidden"
@@ -289,7 +291,7 @@ function Features() {
           variants={stagger}
           className="text-center"
         >
-          <motion.h2 variants={fadeUp} className="font-display text-4xl font-bold tracking-wide text-ink-100 md:text-5xl">
+          <motion.h2 variants={fadeUp} id="features-heading" className="font-display text-4xl font-bold tracking-wide text-ink-100 md:text-5xl">
             Everything you need
           </motion.h2>
           <motion.p variants={fadeUp} className="mx-auto mt-3 max-w-xl text-ink-400">
@@ -313,7 +315,7 @@ function Features() {
                   aria-hidden="true"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/60 to-ink-900/20" />
-                <div className="relative flex h-full flex-col justify-end p-8">
+                <div className="relative flex h-full min-h-72 flex-col justify-end p-8">
                   <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-ink-950/60 text-brand-400 backdrop-blur-sm">
                     <feature.icon className="h-7 w-7" aria-hidden="true" />
                   </div>
@@ -333,7 +335,7 @@ function Features() {
 
 function PlanPreview() {
   return (
-    <section id="plan-preview" className="relative mx-auto max-w-6xl px-4 py-28">
+    <section id="plan-preview" aria-labelledby="plan-preview-heading" className="relative mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-6xl flex-col justify-center px-4 py-16 scroll-mt-16">
       <div className="grid items-center gap-16 lg:grid-cols-2">
         <motion.div
           initial="hidden"
@@ -348,7 +350,7 @@ function PlanPreview() {
             <ClipboardList className="h-4 w-4" aria-hidden="true" />
             Sample plan
           </motion.span>
-          <motion.h2 variants={fadeUp} className="font-display text-4xl font-bold tracking-wide text-ink-100 md:text-5xl">
+          <motion.h2 variants={fadeUp} id="plan-preview-heading" className="font-display text-4xl font-bold tracking-wide text-ink-100 md:text-5xl">
             A plan that adapts to you
           </motion.h2>
           <motion.p variants={fadeUp} className="mt-4 text-lg text-ink-400">
@@ -428,12 +430,13 @@ function PlanPreview() {
 
 function Faq() {
   return (
-    <section id="faq" className="relative mx-auto max-w-3xl px-4 py-28">
+    <section id="faq" aria-labelledby="faq-heading" className="relative mx-auto flex min-h-[calc(100svh-4rem)] w-full max-w-3xl flex-col justify-center px-4 py-16 scroll-mt-16">
       <motion.h2
         initial="hidden"
         whileInView="visible"
         viewport={{ margin: '-80px' }}
         variants={fadeUp}
+        id="faq-heading"
         className="text-center font-display text-4xl font-bold tracking-wide text-ink-100 md:text-5xl"
       >
         Frequently asked questions

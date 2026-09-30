@@ -46,6 +46,7 @@
 
 html {
   scroll-behavior: smooth;
+  scroll-padding-top: 4rem;
 }
 
 body {
@@ -55,5 +56,6 @@ body {
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
+    scroll-snap-type: none;
   }
 }

@@ -20,11 +20,24 @@ const userLinks = [
   { to: '/calculators', label: 'Calculators' },
 ]
 
+const NAVBAR_HEIGHT = 64
+
 function scrollToSection(id: string) {
   const el = document.getElementById(id)
-  if (el) {
-    el.scrollIntoView({ behavior: 'smooth' })
+  if (!el) return
+  const rect = el.getBoundingClientRect()
+  const sectionHeight = rect.height
+  const availableHeight = window.innerHeight - NAVBAR_HEIGHT
+  let top: number
+  if (sectionHeight >= availableHeight) {
+    top = window.scrollY + rect.top - NAVBAR_HEIGHT
+  } else {
+    top = window.scrollY + rect.top - NAVBAR_HEIGHT + (availableHeight - sectionHeight) / 2
   }
+  const maxScroll = document.documentElement.scrollHeight - window.innerHeight
+  top = Math.max(0, Math.min(top, maxScroll))
+  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+  window.scrollTo({ top, behavior })
 }
 
 export function Navbar() {
@@ -46,21 +59,21 @@ export function Navbar() {
   useEffect(() => {
     if (!isHome) return
 
-    function onScroll() {
-      const scrollPos = window.scrollY + window.innerHeight / 3
-      let current = guestSections[0].id
-      for (const section of guestSections) {
-        const el = document.getElementById(section.id)
-        if (el && el.offsetTop <= scrollPos) {
-          current = section.id
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id)
+          }
         }
-      }
-      setActiveSection(current)
-    }
-
-    window.addEventListener('scroll', onScroll, { passive: true })
-    onScroll()
-    return () => window.removeEventListener('scroll', onScroll)
+      },
+      { rootMargin: '-40% 0px -50% 0px' },
+    )
+    guestSections.forEach((section) => {
+      const el = document.getElementById(section.id)
+      if (el) observer.observe(el)
+    })
+    return () => observer.disconnect()
   }, [isHome])
 
   async function handleSignOut() {
@@ -88,7 +101,23 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10" aria-label="Main navigation">
-        <div className="flex shrink-0 items-center gap-2">
+        <div
+          className="flex shrink-0 cursor-pointer items-center gap-2"
+          onClick={() => {
+            setMenuOpen(false)
+            const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
+            window.scrollTo({ top: 0, behavior })
+          }}
+          role="button"
+          aria-label="FitWise home"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              setMenuOpen(false)
+              window.scrollTo({ top: 0, behavior: 'smooth' })
+            }
+          }}
+        >
           <Activity className="h-7 w-7 text-brand-500" aria-hidden="true" />
           <span className="font-display text-2xl font-bold tracking-wide text-ink-100">
             FitWise
