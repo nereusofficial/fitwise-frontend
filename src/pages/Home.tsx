@@ -379,37 +379,39 @@ function PlanPreview() {
           viewport={{ margin: '-80px' }}
           variants={scaleIn}
         >
-          <div className="overflow-hidden rounded-3xl border border-ink-800 transition-transform duration-300 hover:-translate-y-1">
-            <div className="relative h-52 bg-ink-800">
-              <img src={PLAN_IMG} alt="" className="h-full w-full object-cover" loading="lazy" onError={(e) => { e.currentTarget.style.display = 'none' }} />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/40 to-transparent" />
-              <div className="absolute bottom-4 left-6 right-6 flex items-end justify-between">
+          <div className="group relative h-full min-h-[640px] overflow-hidden rounded-3xl border border-ink-800 bg-ink-900 transition-all duration-300 hover:-translate-y-1 hover:border-ink-700">
+            <div
+              className="absolute inset-0 bg-cover bg-center top transition-transform duration-500 group-hover:scale-105"
+              style={{ backgroundImage: `url(${PLAN_IMG})` }}
+              aria-hidden="true"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-ink-900 via-ink-900/60 to-ink-900/20" />
+            <div className="relative flex h-full flex-col justify-end p-10">
+              <div className="mb-6 flex items-end justify-between">
                 <div>
-                  <p className="font-display text-2xl font-semibold text-white">Weekly plan</p>
+                  <p className="font-display text-2xl font-semibold tracking-wide text-white">Weekly plan</p>
                   <p className="text-sm text-ink-300">Personalized to your stats</p>
                 </div>
-                <span className="flex items-center gap-1.5 rounded-full bg-brand-500/20 px-3 py-1.5 text-sm font-bold text-brand-300 backdrop-blur">
+                <span className="flex items-center gap-1.5 rounded-full bg-ink-950/60 px-3 py-1.5 text-sm font-bold text-brand-300 backdrop-blur-sm">
                   <Flame className="h-4 w-4" aria-hidden="true" />
                   {planPreview.calories} kcal
                 </span>
               </div>
-            </div>
-            <div className="bg-ink-900 p-6">
               <div className="grid grid-cols-3 gap-3 text-center">
                 {[
                   { label: 'Protein', value: planPreview.protein, color: 'text-accent-400' },
                   { label: 'Carbs', value: planPreview.carbs, color: 'text-brand-400' },
                   { label: 'Fat', value: planPreview.fat, color: 'text-amber-400' },
                 ].map((m) => (
-                  <div key={m.label} className="rounded-xl bg-ink-800 p-3">
+                  <div key={m.label} className="rounded-xl bg-ink-950/60 p-3 backdrop-blur-sm">
                     <p className={`font-display text-2xl font-bold ${m.color}`}>{m.value}g</p>
                     <p className="text-xs font-semibold uppercase tracking-wide text-ink-400">{m.label}</p>
                   </div>
                 ))}
               </div>
-              <ul className="mt-4 divide-y divide-ink-800">
+              <ul className="mt-6 flex flex-col gap-5">
                 {planPreview.days.map((d) => (
-                  <li key={d.day} className="flex items-center justify-between py-2.5">
+                  <li key={d.day} className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className={`h-2.5 w-2.5 rounded-full ${d.count > 0 ? 'bg-accent-500' : 'bg-ink-600'}`} aria-hidden="true" />
                       <span className="font-medium text-ink-200">{d.day}</span>
