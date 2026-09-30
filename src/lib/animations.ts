@@ -7,7 +7,7 @@ export const fadeUp: Variants = {
   visible: (i: number = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.7, ease: EASE, delay: i * 0.08 },
+    transition: { duration: 1.3, ease: EASE, delay: i * 0.15 },
   }),
 }
 
@@ -15,13 +15,13 @@ export const fadeIn: Variants = {
   hidden: { opacity: 0 },
   visible: (i: number = 0) => ({
     opacity: 1,
-    transition: { duration: 0.6, ease: EASE, delay: i * 0.06 },
+    transition: { duration: 1.2, ease: EASE, delay: i * 0.12 },
   }),
 }
 
 export const stagger: Variants = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
+  visible: { transition: { staggerChildren: 0.15, delayChildren: 0.2 } },
 }
 
 export const scaleIn: Variants = {
@@ -29,7 +29,7 @@ export const scaleIn: Variants = {
   visible: {
     opacity: 1,
     scale: 1,
-    transition: { duration: 0.6, ease: EASE },
+    transition: { duration: 1.2, ease: EASE },
   },
 }
 
@@ -38,7 +38,7 @@ export const slideIn: Variants = {
   visible: {
     opacity: 1,
     x: 0,
-    transition: { duration: 0.6, ease: EASE },
+    transition: { duration: 1.2, ease: EASE },
   },
 }
 
