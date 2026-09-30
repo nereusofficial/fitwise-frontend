@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Activity, LogOut, Menu, User, X } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Button } from './Button'
+import { smoothScrollTo } from '../lib/smoothScroll'
 
 const guestSections = [
   { id: 'hero', label: 'Home' },
@@ -20,30 +21,34 @@ const userLinks = [
   { to: '/calculators', label: 'Calculators' },
 ]
 
-const NAVBAR_HEIGHT = 64
+function getNavbarHeight(): number {
+  const header = document.querySelector('header')
+  return header?.offsetHeight ?? 64
+}
 
-function scrollToSection(id: string) {
+function getCenteredScrollTop(id: string): number {
   const el = document.getElementById(id)
-  if (!el) return
+  if (!el) return 0
   const rect = el.getBoundingClientRect()
   const sectionHeight = rect.height
-  const availableHeight = window.innerHeight - NAVBAR_HEIGHT
+  const navbarHeight = getNavbarHeight()
+  const availableHeight = window.innerHeight - navbarHeight
   let top: number
   if (sectionHeight >= availableHeight) {
-    top = window.scrollY + rect.top - NAVBAR_HEIGHT
+    top = window.scrollY + rect.top - navbarHeight
   } else {
-    top = window.scrollY + rect.top - NAVBAR_HEIGHT + (availableHeight - sectionHeight) / 2
+    top = window.scrollY + rect.top - navbarHeight + (availableHeight - sectionHeight) / 2
   }
   const maxScroll = document.documentElement.scrollHeight - window.innerHeight
-  top = Math.max(0, Math.min(top, maxScroll))
-  const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
-  window.scrollTo({ top, behavior })
+  return Math.max(0, Math.min(top, maxScroll))
 }
 
 export function Navbar() {
   const { user, signOut, loggingOut, clearLoggingOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('hero')
+  const [isScrolling, setIsScrolling] = useState(false)
+  const cancelScrollRef = useRef<(() => void) | null>(null)
   const navigate = useNavigate()
   const location = useLocation()
 
@@ -57,7 +62,7 @@ export function Navbar() {
   }, [location.pathname, loggingOut, clearLoggingOut])
 
   useEffect(() => {
-    if (!isHome) return
+    if (!isHome || isScrolling) return
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -74,7 +79,13 @@ export function Navbar() {
       if (el) observer.observe(el)
     })
     return () => observer.disconnect()
-  }, [isHome])
+  }, [isHome, isScrolling])
+
+  useEffect(() => {
+    return () => {
+      cancelScrollRef.current?.()
+    }
+  }, [])
 
   async function handleSignOut() {
     await signOut()
@@ -84,12 +95,34 @@ export function Navbar() {
 
   function handleSectionClick(id: string) {
     setMenuOpen(false)
-    if (isHome) {
-      scrollToSection(id)
-    } else {
-      navigate('/')
-      setTimeout(() => scrollToSection(id), 100)
-    }
+    setActiveSection(id)
+    setIsScrolling(true)
+    cancelScrollRef.current?.()
+
+    const targetY = getCenteredScrollTop(id)
+    cancelScrollRef.current = smoothScrollTo(targetY, {
+      onDone: () => {
+        setIsScrolling(false)
+        cancelScrollRef.current = null
+        const heading = document.getElementById(`${id}-heading`)
+        if (heading) {
+          heading.setAttribute('tabIndex', '-1')
+          heading.focus({ preventScroll: true })
+        }
+      },
+    })
+  }
+
+  function handleLogoClick() {
+    setMenuOpen(false)
+    setIsScrolling(true)
+    cancelScrollRef.current?.()
+    cancelScrollRef.current = smoothScrollTo(0, {
+      onDone: () => {
+        setIsScrolling(false)
+        cancelScrollRef.current = null
+      },
+    })
   }
 
   function navLinkClass(isActive: boolean) {
@@ -103,18 +136,14 @@ export function Navbar() {
       <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10" aria-label="Main navigation">
         <div
           className="flex shrink-0 cursor-pointer items-center gap-2"
-          onClick={() => {
-            setMenuOpen(false)
-            const behavior = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
-            window.scrollTo({ top: 0, behavior })
-          }}
+          onClick={handleLogoClick}
           role="button"
           aria-label="FitWise home"
           tabIndex={0}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
-              setMenuOpen(false)
-              window.scrollTo({ top: 0, behavior: 'smooth' })
+              e.preventDefault()
+              handleLogoClick()
             }
           }}
         >
