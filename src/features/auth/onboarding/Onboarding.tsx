@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, Loader2, X } from 'lucide-react'
 import { supabase } from '../../../lib/supabaseClient'
 import { useAuth } from '../../../hooks/useAuth'
 import { useProfile } from '../../../hooks/useProfile'
@@ -194,21 +194,26 @@ export function Onboarding() {
         aria-hidden="true"
       />
       <div className="relative w-full max-w-2xl">
-        <button
-          type="button"
-          onClick={() => navigate('/')}
-          aria-label="Go back"
-          className="absolute -top-2 left-0 z-10 inline-flex cursor-pointer items-center gap-2 rounded-xl px-3 py-2 text-sm font-semibold text-ink-300 transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-brand-500"
-        >
-          <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-          Back
-        </button>
+        <div className="mb-8 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => navigate('/')}
+            aria-label="Exit to home"
+            className="inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-3 py-2 text-sm font-semibold text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-brand-500"
+          >
+            <X className="h-4 w-4" aria-hidden="true" />
+            Exit
+          </button>
+          <p className="text-sm font-medium text-ink-400 dark:text-ink-500">
+            Step {step + 1} of {totalSteps}
+          </p>
+        </div>
         <div className="mb-8 text-center">
           <p className="font-display text-4xl font-bold tracking-wide text-ink-900 dark:text-ink-100">
             Let&apos;s build your plan
           </p>
           <p className="mt-2 text-ink-500 dark:text-ink-400">
-            Step {step + 1} of {totalSteps} — {step + 1 === totalSteps ? 'almost there' : 'a few quick questions'}
+            {step + 1 === totalSteps ? 'almost there' : 'a few quick questions'}
           </p>
         </div>
 
@@ -274,7 +279,7 @@ export function Onboarding() {
                 className="inline-flex cursor-pointer items-center gap-2 rounded-xl px-4 py-2.5 font-semibold text-ink-600 transition-colors hover:bg-ink-100 disabled:cursor-not-allowed disabled:opacity-40 dark:text-ink-300 dark:hover:bg-ink-800"
               >
                 <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-                Back
+                Previous
               </button>
               <button
                 type="button"
