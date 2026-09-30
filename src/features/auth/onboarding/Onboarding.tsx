@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate, useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { ArrowLeft, ArrowRight, Check, Loader2, X } from 'lucide-react'
@@ -57,6 +57,23 @@ export function Onboarding() {
 
   const totalSteps = 9
   const isConsentStep = user !== null
+
+  useEffect(() => {
+    const visualViewport = window.visualViewport
+    if (!visualViewport) return
+
+    const onViewportResize = () => {
+      const activeElement = document.activeElement
+      if (activeElement instanceof HTMLInputElement || activeElement instanceof HTMLTextAreaElement) {
+        setTimeout(() => {
+          activeElement.scrollIntoView({ block: 'center', behavior: 'smooth' })
+        }, 100)
+      }
+    }
+
+    visualViewport.addEventListener('resize', onViewportResize)
+    return () => visualViewport.removeEventListener('resize', onViewportResize)
+  }, [])
 
   if (isConsentStep && !loadStored()) {
     return <Navigate to="/dashboard" replace />
@@ -315,6 +332,11 @@ function NameStep({ value, onChange }: { value: string; onChange: (v: string) =>
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        onFocus={(e) => {
+          setTimeout(() => {
+            e.target.scrollIntoView({ block: 'center', behavior: 'smooth' })
+          }, 300)
+        }}
         placeholder="Your first name"
         autoFocus
         className="w-full rounded-2xl border-2 border-ink-200 bg-white px-5 py-4 text-lg text-ink-900 placeholder:text-ink-400 focus:border-brand-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/30 dark:border-ink-700 dark:bg-ink-900 dark:text-ink-100"
