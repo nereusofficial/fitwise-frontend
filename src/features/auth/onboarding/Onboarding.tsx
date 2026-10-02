@@ -141,24 +141,6 @@ export function Onboarding() {
     setError('')
     try {
       await signInWithGoogle()
-      const {
-        data: { session },
-      } = await supabase.auth.getSession()
-      if (!session) {
-        const code = new URLSearchParams(window.location.search).get('code')
-        if (code) {
-          const apiUrl = import.meta.env.VITE_API_URL
-          const res = await fetch(`${apiUrl}/api/auth/create-user`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ code }),
-          })
-          if (!res.ok) {
-            const body = await res.json().catch(() => null)
-            throw new Error(body?.error ?? 'Failed to create account')
-          }
-        }
-      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed. Please try again.')
       setBusy(false)
@@ -190,8 +172,8 @@ export function Onboarding() {
       })
       sessionStorage.removeItem(STORAGE_KEY)
       navigate('/dashboard', { replace: true })
-    } catch {
-      setError('Could not set up your account. Please try again.')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not set up your account. Please try again.')
       setBusy(false)
     }
   }
