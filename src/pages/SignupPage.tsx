@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { Onboarding } from '../features/auth/onboarding/Onboarding'
+import { ChatWidget } from '../features/chat/ChatWidget'
 
 const STORAGE_KEY = 'fitwise-onboarding'
 
@@ -31,5 +32,10 @@ export default function SignupPage() {
     return <Navigate to="/dashboard" replace />
   }
 
-  return <Onboarding />
+  return (
+    <>
+      <Onboarding />
+      <ChatWidget mode="public" />
+    </>
+  )
 }

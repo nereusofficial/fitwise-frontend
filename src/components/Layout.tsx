@@ -2,6 +2,7 @@ import { Outlet, useLocation } from 'react-router-dom'
 import { AnimatePresence, motion } from 'motion/react'
 import { Navbar } from './Navbar'
 import { Footer } from './Footer'
+import { ChatWidget } from '../features/chat/ChatWidget'
 import { pageTransition } from '../lib/animations'
 
 export function Layout() {
@@ -24,6 +25,7 @@ export function Layout() {
         </AnimatePresence>
       </main>
       <Footer />
+      <ChatWidget mode="member" />
     </div>
   )
 }

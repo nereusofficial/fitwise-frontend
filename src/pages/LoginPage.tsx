@@ -6,6 +6,7 @@ import { useAuth } from '../hooks/useAuth'
 import { Activity } from 'lucide-react'
 import { Alert } from '../components/Alert'
 import { supabase } from '../lib/supabaseClient'
+import { ChatWidget } from '../features/chat/ChatWidget'
 
 export default function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth()
@@ -109,6 +110,7 @@ export default function LoginPage() {
           Continue with Google
         </button>
       </motion.div>
+      <ChatWidget mode="public" />
     </div>
   )
 }

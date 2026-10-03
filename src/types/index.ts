@@ -120,6 +120,11 @@ export interface RecommendationInput {
   about: string
 }
 
+export interface ChatMessage {
+  role: 'user' | 'assistant'
+  content: string
+}
+
 export interface OnboardingData {
   name: string
   goals: string[]

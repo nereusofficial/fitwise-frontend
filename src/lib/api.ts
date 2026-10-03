@@ -1,5 +1,5 @@
 import { supabase } from './supabaseClient'
-import type { Recommendation, RecommendationInput } from '../types'
+import type { ChatMessage, Recommendation, RecommendationInput } from '../types'
 
 export class ApiError extends Error {
   status: number
@@ -70,4 +70,64 @@ export async function fetchRecommendation(input: RecommendationInput): Promise<R
 
   const data = (await res.json()) as { recommendation: Recommendation }
   return data.recommendation
+}
+
+export async function sendChatMessage(messages: ChatMessage[]): Promise<string> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  if (!session) {
+    throw new ApiError(401, 'You must be logged in to chat.')
+  }
+
+  const apiUrl = import.meta.env.VITE_API_URL
+  const res = await fetch(`${apiUrl}/api/chat`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ messages }),
+  })
+
+  if (res.status === 401) {
+    await supabase.auth.signOut()
+    throw new ApiError(401, 'Your session has expired. Please log in again.')
+  }
+
+  if (!res.ok) {
+    let body: ErrorBody | null = null
+    try {
+      body = (await res.json()) as ErrorBody
+    } catch {
+      // Response wasn't JSON; fall back to a generic message.
+    }
+    throw new ApiError(res.status, friendlyMessage(res.status, body))
+  }
+
+  const data = (await res.json()) as { reply: string }
+  return data.reply
+}
+
+export async function sendPublicChatMessage(messages: ChatMessage[]): Promise<string> {
+  const apiUrl = import.meta.env.VITE_API_URL
+  const res = await fetch(`${apiUrl}/api/chat/public`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ messages }),
+  })
+
+  if (!res.ok) {
+    let body: ErrorBody | null = null
+    try {
+      body = (await res.json()) as ErrorBody
+    } catch {
+      // Response wasn't JSON; fall back to a generic message.
+    }
+    throw new ApiError(res.status, friendlyMessage(res.status, body))
+  }
+
+  const data = (await res.json()) as { reply: string }
+  return data.reply
 }
