@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { ArrowLeft, ArrowRight, Check, Loader2 } from 'lucide-react'
 import { useAuth } from '../../../hooks/useAuth'
 import { useProfile } from '../../../hooks/useProfile'
+import { supabase } from '../../../lib/supabaseClient'
 import { onboardingStep } from '../../../lib/animations'
 import { OptionGrid } from './steps'
 import {
@@ -139,7 +140,36 @@ export function Onboarding() {
     setBusy(true)
     setError('')
     try {
+      try {
+        sessionStorage.setItem('authIntent', 'signup')
+      } catch {
+        // Ignore.
+      }
       await signInWithGoogle()
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id, name, age, height_cm, weight_kg, gender, activity_level, goal')
+          .eq('id', session.user.id)
+          .maybeSingle()
+
+        const isComplete =
+          profile &&
+          profile.name &&
+          profile.age > 0 &&
+          profile.height_cm > 0 &&
+          profile.weight_kg > 0 &&
+          profile.gender &&
+          profile.activity_level &&
+          profile.goal
+
+        if (isComplete) {
+          navigate('/dashboard', { replace: true })
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Google sign-in failed. Please try again.')
       setBusy(false)

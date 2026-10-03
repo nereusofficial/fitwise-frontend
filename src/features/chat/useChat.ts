@@ -75,7 +75,7 @@ export function useChat(mode: ChatMode): UseChatResult {
       const apiFn = mode === 'member' ? sendChatMessage : sendPublicChatMessage
       const reply = await apiFn([...messages, userMessage].slice(-MAX_MESSAGES[mode]))
       if (currentRequestId !== requestId.current) return
-      setMessages((prev) => [...prev, { role: 'assistant', content: reply }].slice(-MAX_MESSAGES[mode]))
+      setMessages((prev): ChatMessage[] => [...prev, { role: 'assistant' as const, content: reply }].slice(-MAX_MESSAGES[mode]))
     } catch (err) {
       if (currentRequestId !== requestId.current) return
       if (err instanceof Error) {

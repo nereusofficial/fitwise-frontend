@@ -6,7 +6,6 @@ import { useAuth } from '../hooks/useAuth'
 import { Activity } from 'lucide-react'
 import { Alert } from '../components/Alert'
 import { supabase } from '../lib/supabaseClient'
-import { ChatWidget } from '../features/chat/ChatWidget'
 
 export default function LoginPage() {
   const { user, loading, signInWithGoogle } = useAuth()
@@ -15,9 +14,19 @@ export default function LoginPage() {
   const from = (location.state as { from?: string } | null)?.from ?? '/dashboard'
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [profileVerified, setProfileVerified] = useState(false)
 
   const oauthCode = new URLSearchParams(location.search).get('code')
   const oauthError = new URLSearchParams(location.search).get('error')
+  const notRegistered = new URLSearchParams(location.search).get('error') === 'not_registered'
+
+  useEffect(() => {
+    if (notRegistered) {
+      setError('No account found for this Google account. Click Get started and complete sign-up first.')
+      const newUrl = window.location.pathname
+      window.history.replaceState({}, '', newUrl)
+    }
+  }, [notRegistered])
 
   useEffect(() => {
     if (user || loading) return
@@ -33,6 +42,74 @@ export default function LoginPage() {
     })
   }, [oauthCode, oauthError, user, loading])
 
+  useEffect(() => {
+    if (!user || loading) return
+
+    let intent = ''
+    try {
+      intent = sessionStorage.getItem('authIntent') ?? ''
+      sessionStorage.removeItem('authIntent')
+    } catch {
+      // Ignore.
+    }
+
+    supabase
+      .from('profiles')
+      .select('id, name, age, height_cm, weight_kg, gender, activity_level, goal')
+      .eq('id', user.id)
+      .maybeSingle()
+      .then(async ({ data, error: fetchError }) => {
+        if (fetchError) {
+          setError('Could not verify your account. Please try again.')
+          return
+        }
+
+        const isComplete =
+          data &&
+          data.name &&
+          data.age > 0 &&
+          data.height_cm > 0 &&
+          data.weight_kg > 0 &&
+          data.gender &&
+          data.activity_level &&
+          data.goal
+
+        if (intent === 'signin' && !isComplete) {
+          if (!data) {
+            try {
+              const {
+                data: { session },
+              } = await supabase.auth.getSession()
+              if (session) {
+                const controller = new AbortController()
+                const timeout = setTimeout(() => controller.abort(), 5000)
+                try {
+                  await fetch(`${import.meta.env.VITE_API_URL}/api/account/discard-incomplete`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${session.access_token}`,
+                    },
+                    signal: controller.signal,
+                  })
+                } catch {
+                  // Ignore — still sign out below.
+                } finally {
+                  clearTimeout(timeout)
+                }
+              }
+            } catch {
+              // Ignore — still sign out below.
+            }
+          }
+          await supabase.auth.signOut({ scope: 'local' })
+          navigate('/login?error=not_registered', { replace: true })
+        } else if (isComplete) {
+          setProfileVerified(true)
+        }
+      })
+  }, [user, loading, navigate])
+
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center">
@@ -45,13 +122,18 @@ export default function LoginPage() {
     )
   }
 
-  if (user) {
+  if (user && profileVerified) {
     return <Navigate to={from} replace />
   }
 
   async function handleGoogle() {
     setBusy(true)
     setError('')
+    try {
+      sessionStorage.setItem('authIntent', 'signin')
+    } catch {
+      // Ignore.
+    }
     try {
       await signInWithGoogle()
     } catch {
@@ -96,8 +178,21 @@ export default function LoginPage() {
         </h1>
         <p className="mt-2 text-ink-400">Sign in with Google to continue.</p>
         {error && (
-          <div className="mt-4">
-            <Alert variant="error">{error}</Alert>
+          <div className="mt-4" role="alert">
+            <Alert variant="error">
+              {error}
+              {notRegistered && (
+                <div className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => navigate('/signup')}
+                    className="cursor-pointer font-semibold text-red-100 underline hover:text-white focus-visible:outline-2 focus-visible:outline-red-500"
+                  >
+                    Get started
+                  </button>
+                </div>
+              )}
+            </Alert>
           </div>
         )}
         <button
@@ -110,7 +205,6 @@ export default function LoginPage() {
           Continue with Google
         </button>
       </motion.div>
-      <ChatWidget mode="public" />
     </div>
   )
 }

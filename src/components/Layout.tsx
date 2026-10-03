@@ -25,7 +25,7 @@ export function Layout() {
         </AnimatePresence>
       </main>
       <Footer />
-      <ChatWidget mode="member" />
+      <ChatWidget />
     </div>
   )
 }

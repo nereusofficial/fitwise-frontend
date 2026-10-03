@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from 'motion/react'
 import { LogIn, MessageCircle, Send, Trash2, X } from 'lucide-react'
 import { useChat, type ChatMode } from './useChat'
 import { useAuth } from '../../hooks/useAuth'
+import { usePageContext } from '../../hooks/usePageContext'
 import { useNavigate } from 'react-router-dom'
 
 const MEMBER_PROMPTS = [
@@ -22,13 +23,13 @@ const PUBLIC_PROMPTS = [
 
 const PUBLIC_OPENING = "Hi! I can answer questions about FitWise. What would you like to know?"
 
-interface ChatWidgetProps {
-  mode: ChatMode
-}
-
-export function ChatWidget({ mode }: ChatWidgetProps) {
+export function ChatWidget() {
   const { user, signInWithGoogle } = useAuth()
+  const pageContext = usePageContext()
   const navigate = useNavigate()
+
+  const isPublic = pageContext !== 'app'
+  const mode: ChatMode = isPublic ? 'public' : 'member'
   const { messages, loading, error, sendMessage, clearChat, retry } = useChat(mode)
   const [open, setOpen] = useState(false)
   const [input, setInput] = useState('')
@@ -40,7 +41,6 @@ export function ChatWidget({ mode }: ChatWidgetProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const shouldScrollRef = useRef(true)
 
-  const isPublic = mode === 'public'
   const prompts = isPublic ? PUBLIC_PROMPTS : MEMBER_PROMPTS
   const maxChars = isPublic ? 500 : 1000
 
@@ -74,6 +74,10 @@ export function ChatWidget({ mode }: ChatWidgetProps) {
       clearChat()
     }
   }, [user, clearChat])
+
+  useEffect(() => {
+    setOpen(false)
+  }, [mode])
 
   useEffect(() => {
     if (!isPublic) return

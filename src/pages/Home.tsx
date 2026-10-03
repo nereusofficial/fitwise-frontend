@@ -16,7 +16,6 @@ import {
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Button } from '../components/Button'
-import { ChatWidget } from '../features/chat/ChatWidget'
 import { EASE, fadeUp, scaleIn, stagger } from '../lib/animations'
 
 const HERO_IMG =
@@ -527,7 +526,6 @@ export default function Home() {
       <PlanPreview />
       <Faq />
       <FinalCta />
-      <ChatWidget mode="public" />
     </>
   )
 }

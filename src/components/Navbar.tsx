@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { Activity, LogOut, Menu, User, X } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { usePageContext } from '../hooks/usePageContext'
 import { Button } from './Button'
 import { smoothScrollTo } from '../lib/smoothScroll'
 
@@ -53,7 +54,9 @@ export function Navbar() {
   const location = useLocation()
 
   const isHome = location.pathname === '/'
-  const links = user ? userLinks : guestSections
+  const pageContext = usePageContext()
+  const showLandingNav = pageContext === 'landing' || pageContext === 'auth'
+  const links = showLandingNav ? guestSections : userLinks
 
   useEffect(() => {
     if (loggingOut && location.pathname === '/') {
@@ -155,11 +158,7 @@ export function Navbar() {
 
         <div className="hidden items-center gap-1 md:flex">
           {links.map((link) =>
-            user && 'to' in link ? (
-              <a key={link.to} href={link.to} className={navLinkClass(false)}>
-                {link.label}
-              </a>
-            ) : !user && 'id' in link ? (
+            !user && 'id' in link ? (
               <button
                 key={link.id}
                 type="button"
@@ -174,12 +173,37 @@ export function Navbar() {
                   aria-hidden="true"
                 />
               </button>
+            ) : user && 'to' in link ? (
+              <a key={link.to} href={link.to} className={navLinkClass(false)}>
+                {link.label}
+              </a>
             ) : null,
           )}
         </div>
 
         <div className="hidden items-center gap-2 md:flex">
-          {user ? (
+          {showLandingNav ? (
+            user ? (
+              <>
+                <Button size="sm" onClick={() => navigate('/dashboard')}>
+                  Dashboard
+                </Button>
+                <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                  <LogOut className="h-4 w-4" aria-hidden="true" />
+                  Log out
+                </Button>
+              </>
+            ) : (
+              <>
+                <button type="button" onClick={() => navigate('/login')} className={navLinkClass(false)}>
+                  Sign in
+                </button>
+                <Button size="sm" onClick={() => navigate('/signup')}>
+                  Get started
+                </Button>
+              </>
+            )
+          ) : (
             <>
               <a href="/profile" className={navLinkClass(false)}>
                 <span className="flex items-center gap-1.5">
@@ -190,15 +214,6 @@ export function Navbar() {
               <Button variant="ghost" size="sm" onClick={handleSignOut}>
                 <LogOut className="h-4 w-4" aria-hidden="true" />
                 Log out
-              </Button>
-            </>
-          ) : (
-            <>
-              <button type="button" onClick={() => navigate('/login')} className={navLinkClass(false)}>
-                Sign in
-              </button>
-              <Button size="sm" onClick={() => navigate('/signup')}>
-                Get started
               </Button>
             </>
           )}
@@ -221,11 +236,7 @@ export function Navbar() {
         <div className="border-t border-ink-800 bg-ink-950 px-4 py-3 md:hidden">
           <div className="flex flex-col gap-1">
             {links.map((link) =>
-              user && 'to' in link ? (
-                <a key={link.to} href={link.to} className={navLinkClass(false)} onClick={() => setMenuOpen(false)}>
-                  {link.label}
-                </a>
-              ) : !user && 'id' in link ? (
+              !user && 'id' in link ? (
                 <button
                   key={link.id}
                   type="button"
@@ -234,9 +245,34 @@ export function Navbar() {
                 >
                   {link.label}
                 </button>
+              ) : user && 'to' in link ? (
+                <a key={link.to} href={link.to} className={navLinkClass(false)} onClick={() => setMenuOpen(false)}>
+                  {link.label}
+                </a>
               ) : null,
             )}
-            {user ? (
+            {showLandingNav ? (
+              user ? (
+                <>
+                  <Button size="sm" onClick={() => { setMenuOpen(false); navigate('/dashboard') }}>
+                    Dashboard
+                  </Button>
+                  <Button variant="ghost" size="sm" onClick={handleSignOut} className="mt-1 justify-start">
+                    <LogOut className="h-4 w-4" aria-hidden="true" />
+                    Log out
+                  </Button>
+                </>
+              ) : (
+                <div className="mt-2 flex flex-col gap-2">
+                  <button type="button" onClick={() => { setMenuOpen(false); navigate('/login') }} className={navLinkClass(false)}>
+                    Sign in
+                  </button>
+                  <Button size="sm" onClick={() => { setMenuOpen(false); navigate('/signup') }}>
+                    Get started
+                  </Button>
+                </div>
+              )
+            ) : (
               <>
                 <a href="/profile" className={navLinkClass(false)} onClick={() => setMenuOpen(false)}>
                   <span className="flex items-center gap-1.5">
@@ -249,15 +285,6 @@ export function Navbar() {
                   Log out
                 </Button>
               </>
-            ) : (
-              <div className="mt-2 flex flex-col gap-2">
-                <button type="button" onClick={() => { setMenuOpen(false); navigate('/login') }} className={navLinkClass(false)}>
-                  Sign in
-                </button>
-                <Button size="sm" onClick={() => { setMenuOpen(false); navigate('/signup') }}>
-                  Get started
-                </Button>
-              </div>
             )}
           </div>
         </div>
