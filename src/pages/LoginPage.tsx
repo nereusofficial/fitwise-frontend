@@ -4,7 +4,7 @@ import { motion } from 'motion/react'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Activity } from 'lucide-react'
-import { Alert } from '../components/Alert'
+import { Toast } from '../components/Toast'
 import { supabase } from '../lib/supabaseClient'
 
 export default function LoginPage() {
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const from = (location.state as { from?: string } | null)?.from ?? '/dashboard'
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
+  const [toastVisible, setToastVisible] = useState(false)
   const [profileVerified, setProfileVerified] = useState(false)
 
   const oauthCode = new URLSearchParams(location.search).get('code')
@@ -23,6 +24,7 @@ export default function LoginPage() {
   useEffect(() => {
     if (notRegistered) {
       setError('No account found for this Google account. Click Get started and complete sign-up first.')
+      setToastVisible(true)
       const newUrl = window.location.pathname
       window.history.replaceState({}, '', newUrl)
     }
@@ -32,12 +34,14 @@ export default function LoginPage() {
     if (user || loading) return
     if (oauthError) {
       setError('No account found for this Google account. Please sign up first.')
+      setToastVisible(true)
       return
     }
     if (!oauthCode) return
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
         setError('No account found for this Google account. Please sign up first.')
+        setToastVisible(true)
       }
     })
   }, [oauthCode, oauthError, user, loading])
@@ -61,6 +65,7 @@ export default function LoginPage() {
       .then(async ({ data, error: fetchError }) => {
         if (fetchError) {
           setError('Could not verify your account. Please try again.')
+          setToastVisible(true)
           return
         }
 
@@ -177,24 +182,6 @@ export default function LoginPage() {
           Welcome back
         </h1>
         <p className="mt-2 text-ink-400">Sign in with Google to continue.</p>
-        {error && (
-          <div className="mt-4" role="alert">
-            <Alert variant="error">
-              {error}
-              {notRegistered && (
-                <div className="mt-2">
-                  <button
-                    type="button"
-                    onClick={() => navigate('/signup')}
-                    className="cursor-pointer font-semibold text-red-100 underline hover:text-white focus-visible:outline-2 focus-visible:outline-red-500"
-                  >
-                    Get started
-                  </button>
-                </div>
-              )}
-            </Alert>
-          </div>
-        )}
         <button
           type="button"
           onClick={handleGoogle}
@@ -205,6 +192,11 @@ export default function LoginPage() {
           Continue with Google
         </button>
       </motion.div>
+      <Toast
+        message={error}
+        visible={toastVisible}
+        onClose={() => setToastVisible(false)}
+      />
     </div>
   )
 }
