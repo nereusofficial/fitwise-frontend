@@ -32,7 +32,8 @@ export function Footer() {
               Legal
             </h2>
             <ul className="flex flex-col gap-2 text-sm">
-              <li><Link to="/privacy" className="text-ink-500 hover:text-brand-600 dark:text-ink-400 dark:hover:text-brand-400">Privacy &amp; Terms</Link></li>
+              <li><Link to="/terms" className="text-ink-500 hover:text-brand-600 dark:text-ink-400 dark:hover:text-brand-400">Terms of Service</Link></li>
+              <li><Link to="/privacy" className="text-ink-500 hover:text-brand-600 dark:text-ink-400 dark:hover:text-brand-400">Privacy Policy</Link></li>
             </ul>
           </div>
         </div>

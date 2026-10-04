@@ -23,6 +23,9 @@ export function mapProfile(row: ProfileRow): UserProfile {
     mealPlanningFrequency: row.meal_planning_frequency ?? 'weekly',
     wantsMealPlans: row.wants_meal_plans ?? false,
     about: row.about ?? '',
+    termsAcceptedAt: row.terms_accepted_at ?? null,
+    privacyAcceptedAt: row.privacy_accepted_at ?? null,
+    legalVersion: row.legal_version ?? null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }

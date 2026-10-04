@@ -15,6 +15,10 @@ import {
   PRIMARY_GOAL_MAP,
 } from './options'
 import { Alert } from '../../../components/Alert'
+import { LegalModal } from '../../legal/LegalModal'
+import { termsContent } from '../../legal/termsContent'
+import { privacyContent } from '../../legal/privacyContent'
+import { LEGAL_VERSION } from '../../legal/legalVersion'
 import type { ActivityLevel, Gender, Goal, MealPlanningFrequency, OnboardingData } from '../../../types'
 
 const STORAGE_KEY = 'fitwise-onboarding'
@@ -54,6 +58,8 @@ export function Onboarding() {
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
   const [consent, setConsent] = useState({ terms: false, privacy: false })
+  const [readDocs, setReadDocs] = useState({ terms: false, privacy: false })
+  const [activeDoc, setActiveDoc] = useState<'terms' | 'privacy' | null>(null)
 
   const totalSteps = 9
   const isConsentStep = user !== null
@@ -185,6 +191,7 @@ export function Onboarding() {
     setError('')
     try {
       const goal: Goal = data.goal !== '' ? data.goal : PRIMARY_GOAL_MAP[data.goals[0] ?? 'maintain'] ?? 'maintain'
+      const now = new Date().toISOString()
       await saveProfile({
         name: data.name.trim(),
         age: Number(data.age),
@@ -198,6 +205,9 @@ export function Onboarding() {
         mealPlanningFrequency: (data.mealPlanningFrequency || 'weekly') as MealPlanningFrequency,
         wantsMealPlans: data.wantsMealPlans ?? false,
         about: data.about.trim(),
+        termsAcceptedAt: now,
+        privacyAcceptedAt: now,
+        legalVersion: LEGAL_VERSION,
       })
       sessionStorage.removeItem(STORAGE_KEY)
       navigate('/dashboard', { replace: true })
@@ -208,7 +218,19 @@ export function Onboarding() {
   }
 
   if (isConsentStep) {
-    return <ConsentStep consent={consent} setConsent={setConsent} onContinue={handleConsent} busy={busy} error={error} />
+    return (
+      <ConsentStep
+        consent={consent}
+        setConsent={setConsent}
+        onContinue={handleConsent}
+        busy={busy}
+        error={error}
+        readDocs={readDocs}
+        setReadDocs={setReadDocs}
+        activeDoc={activeDoc}
+        setActiveDoc={setActiveDoc}
+      />
+    )
   }
 
   return (
@@ -503,79 +525,160 @@ function ConsentStep({
   onContinue,
   busy,
   error,
+  readDocs,
+  setReadDocs,
+  activeDoc,
+  setActiveDoc,
 }: {
   consent: { terms: boolean; privacy: boolean }
   setConsent: (c: { terms: boolean; privacy: boolean }) => void
   onContinue: () => void
   busy: boolean
   error: string
+  readDocs: { terms: boolean; privacy: boolean }
+  setReadDocs: (d: { terms: boolean; privacy: boolean }) => void
+  activeDoc: 'terms' | 'privacy' | null
+  setActiveDoc: (d: 'terms' | 'privacy' | null) => void
 }) {
+  const openDoc = (doc: 'terms' | 'privacy') => {
+    if (!readDocs[doc]) {
+      setActiveDoc(doc)
+    }
+  }
+
+  const handleAgree = () => {
+    if (activeDoc) {
+      setReadDocs({ ...readDocs, [activeDoc]: true })
+      setActiveDoc(null)
+    }
+  }
+
+  const handleCheckboxClick = (doc: 'terms' | 'privacy') => {
+    if (!readDocs[doc]) {
+      openDoc(doc)
+    }
+  }
+
+  const toggleCheckbox = (doc: 'terms' | 'privacy') => {
+    if (readDocs[doc]) {
+      setConsent({ ...consent, [doc]: !consent[doc] })
+    }
+  }
+
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
-      <div
-        className="pointer-events-none absolute inset-0"
-        style={{
-          backgroundImage:
-            'radial-gradient(circle at 20% 30%, rgba(249,115,22,0.15) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(34,197,94,0.12) 0%, transparent 40%)',
-        }}
-        aria-hidden="true"
-      />
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-lg rounded-3xl border border-ink-200 bg-white/80 p-8 shadow-xl backdrop-blur dark:border-ink-800 dark:bg-ink-900/80"
-      >
-        <h2 className="font-display text-3xl font-bold tracking-wide text-ink-900 dark:text-ink-100">
-          Almost done
-        </h2>
-        <p className="mt-2 text-ink-500 dark:text-ink-400">
-          Review and accept to finish setting up your account.
-        </p>
-
-        <div className="mt-6 flex flex-col gap-3">
-          <ConsentCheckbox
-            checked={consent.terms}
-            onChange={(v) => setConsent({ ...consent, terms: v })}
-            label="I agree to the Terms of Service"
-          />
-          <ConsentCheckbox
-            checked={consent.privacy}
-            onChange={(v) => setConsent({ ...consent, privacy: v })}
-            label="I agree to the Privacy Policy"
-          />
-        </div>
-
-        {error && (
-          <div className="mt-4">
-            <Alert variant="error">{error}</Alert>
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={onContinue}
-          disabled={busy}
-          className="mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-brand-500 px-6 py-3.5 font-semibold text-ink-950 transition-colors hover:bg-brand-400 disabled:opacity-60"
+    <>
+      <div className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-12">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              'radial-gradient(circle at 20% 30%, rgba(249,115,22,0.15) 0%, transparent 40%), radial-gradient(circle at 80% 70%, rgba(34,197,94,0.12) 0%, transparent 40%)',
+          }}
+          aria-hidden="true"
+        />
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+          className="relative w-full max-w-lg rounded-3xl border border-ink-200 bg-white/80 p-8 shadow-xl backdrop-blur dark:border-ink-800 dark:bg-ink-900/80"
         >
-          {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Check className="h-5 w-5" aria-hidden="true" />}
-          Finish setup
-        </button>
-      </motion.div>
-    </div>
+          <h2 className="font-display text-3xl font-bold tracking-wide text-ink-900 dark:text-ink-100">
+            Almost done
+          </h2>
+          <p className="mt-2 text-ink-500 dark:text-ink-400">
+            Review and accept to finish setting up your account.
+          </p>
+
+          <div className="mt-6 flex flex-col gap-3">
+            <ConsentCheckbox
+              checked={consent.terms}
+              onToggle={() => toggleCheckbox('terms')}
+              onClick={() => handleCheckboxClick('terms')}
+              label="I agree to the"
+              docLabel="Terms of Service"
+            />
+            <ConsentCheckbox
+              checked={consent.privacy}
+              onToggle={() => toggleCheckbox('privacy')}
+              onClick={() => handleCheckboxClick('privacy')}
+              label="I agree to the"
+              docLabel="Privacy Policy"
+            />
+          </div>
+
+          {!readDocs.terms || !readDocs.privacy ? (
+            <p className="mt-4 text-sm text-ink-500 dark:text-ink-400">
+              Open and read each document to continue
+            </p>
+          ) : null}
+
+          {error && (
+            <div className="mt-4">
+              <Alert variant="error">{error}</Alert>
+            </div>
+          )}
+
+          <button
+            type="button"
+            onClick={onContinue}
+            disabled={busy || !consent.terms || !consent.privacy}
+            className="mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-brand-500 px-6 py-3.5 font-semibold text-ink-950 transition-colors hover:bg-brand-400 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Check className="h-5 w-5" aria-hidden="true" />}
+            Finish setup
+          </button>
+        </motion.div>
+      </div>
+
+      <LegalModal
+        document={activeDoc === 'terms' ? termsContent : privacyContent}
+        isOpen={activeDoc !== null}
+        onClose={() => setActiveDoc(null)}
+        onAgree={handleAgree}
+      />
+    </>
   )
 }
 
-function ConsentCheckbox({ checked, onChange, label }: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+function ConsentCheckbox({
+  checked,
+  onToggle,
+  onClick,
+  label,
+  docLabel,
+}: {
+  checked: boolean
+  onToggle: () => void
+  onClick: () => void
+  label: string
+  docLabel: string
+}) {
   return (
     <label className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-ink-200 p-4 transition-colors hover:border-ink-300 dark:border-ink-700 dark:hover:border-ink-600">
       <input
         type="checkbox"
         checked={checked}
-        onChange={(e) => onChange(e.target.checked)}
+        onChange={(e) => {
+          e.stopPropagation()
+          onToggle()
+        }}
+        onClick={(e) => e.stopPropagation()}
         className="h-5 w-5 rounded border-ink-300 text-brand-500 focus:ring-brand-500"
       />
-      <span className="text-sm font-medium text-ink-800 dark:text-ink-200">{label}</span>
+      <span className="text-sm font-medium text-ink-800 dark:text-ink-200">
+        {label}{' '}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            onClick()
+          }}
+          className="cursor-pointer font-semibold text-brand-600 underline hover:text-brand-500 focus-visible:outline-2 focus-visible:outline-brand-500 dark:text-brand-400"
+        >
+          {docLabel}
+        </button>
+      </span>
     </label>
   )
 }

@@ -6,9 +6,10 @@ import { Layout } from './components/Layout'
 import Home from './pages/Home'
 import LoginPage from './pages/LoginPage'
 import SignupPage from './pages/SignupPage'
-import Calculators from './pages/Calculators'
+import TermsPage from './pages/TermsPage'
 import PrivacyPage from './pages/PrivacyPage'
 import NotFound from './pages/NotFound'
+import Calculators from './pages/Calculators'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
@@ -36,6 +37,7 @@ function App() {
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
+              <Route path="/terms" element={<TermsPage />} />
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />

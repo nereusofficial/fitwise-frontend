@@ -8,5 +8,6 @@ export function usePageContext(): PageContext {
 
   if (path === '/') return 'landing'
   if (path === '/login' || path === '/signup') return 'auth'
+  if (path === '/terms' || path === '/privacy') return 'auth'
   return 'app'
 }

@@ -30,6 +30,9 @@ export default function ProfilePage() {
       mealPlanningFrequency: profile.mealPlanningFrequency,
       wantsMealPlans: profile.wantsMealPlans,
       about: profile.about,
+      termsAcceptedAt: profile.termsAcceptedAt,
+      privacyAcceptedAt: profile.privacyAcceptedAt,
+      legalVersion: profile.legalVersion,
     })
   }
 

@@ -137,24 +137,33 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-50 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10" aria-label="Main navigation">
-        <div
-          className="flex shrink-0 items-center gap-2"
-          onClick={handleLogoClick}
-          role="button"
-          aria-label="FitWise home"
-          tabIndex={0}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault()
-              handleLogoClick()
-            }
-          }}
-        >
-          <Activity className="h-7 w-7 text-brand-500" aria-hidden="true" />
-          <span className="font-display text-2xl font-bold tracking-wide text-ink-100">
-            FitWise
-          </span>
-        </div>
+        {isHome ? (
+          <div className="flex shrink-0 cursor-default select-none items-center gap-2">
+            <Activity className="h-7 w-7 text-brand-500" aria-hidden="true" />
+            <span className="font-display text-2xl font-bold tracking-wide text-ink-100">
+              FitWise
+            </span>
+          </div>
+        ) : (
+          <div
+            className="flex shrink-0 cursor-pointer items-center gap-2"
+            onClick={handleLogoClick}
+            role="button"
+            aria-label="FitWise home"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                handleLogoClick()
+              }
+            }}
+          >
+            <Activity className="h-7 w-7 text-brand-500" aria-hidden="true" />
+            <span className="font-display text-2xl font-bold tracking-wide text-ink-100">
+              FitWise
+            </span>
+          </div>
+        )}
 
         <div className="hidden items-center gap-1 md:flex">
           {links.map((link) =>

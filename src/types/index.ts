@@ -25,6 +25,9 @@ export interface UserProfile {
   mealPlanningFrequency: MealPlanningFrequency
   wantsMealPlans: boolean
   about: string
+  termsAcceptedAt: string | null
+  privacyAcceptedAt: string | null
+  legalVersion: string | null
   createdAt: string
   updatedAt: string
 }
@@ -43,6 +46,9 @@ export interface ProfileRow {
   meal_planning_frequency: MealPlanningFrequency
   wants_meal_plans: boolean
   about: string
+  terms_accepted_at: string | null
+  privacy_accepted_at: string | null
+  legal_version: string | null
   created_at: string
   updated_at: string
 }

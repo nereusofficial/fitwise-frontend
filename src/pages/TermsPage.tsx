@@ -1,9 +1,9 @@
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft } from 'lucide-react'
 import { LegalDocument } from '../features/legal/LegalDocument'
-import { privacyContent } from '../features/legal/privacyContent'
+import { termsContent } from '../features/legal/termsContent'
 
-export default function PrivacyPage() {
+export default function TermsPage() {
   const navigate = useNavigate()
 
   return (
@@ -17,7 +17,7 @@ export default function PrivacyPage() {
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back
         </button>
-        <LegalDocument document={privacyContent} />
+        <LegalDocument document={termsContent} />
       </div>
     </div>
   )

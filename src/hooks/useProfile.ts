@@ -88,6 +88,9 @@ export function useProfile(): UseProfileResult {
         meal_planning_frequency: data.mealPlanningFrequency,
         wants_meal_plans: data.wantsMealPlans,
         about: data.about,
+        terms_accepted_at: data.termsAcceptedAt,
+        privacy_accepted_at: data.privacyAcceptedAt,
+        legal_version: data.legalVersion,
       })
       setSaving(false)
       if (upsertError) {
