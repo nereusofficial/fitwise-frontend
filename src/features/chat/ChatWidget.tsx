@@ -347,12 +347,12 @@ export function ChatWidget() {
         aria-label={isPublic ? 'Open FitWise Assistant' : 'Open FitWise Coach'}
         aria-expanded={open}
         initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
+        animate={{ opacity: open ? 0 : 1, scale: open ? 0.8 : 1 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
         className="fixed bottom-6 right-4 z-50 flex h-14 w-14 cursor-pointer items-center justify-center rounded-full bg-brand-500 text-ink-950 shadow-lg transition-colors hover:bg-brand-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-500 sm:right-6"
-        style={{ marginBottom: 'env(safe-area-inset-bottom)' }}
+        style={{ marginBottom: 'env(safe-area-inset-bottom)', pointerEvents: open ? 'none' : 'auto' }}
       >
-        {open ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}
+        <MessageCircle className="h-6 w-6" />
       </motion.button>
     </>
   )
