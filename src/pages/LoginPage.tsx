@@ -4,7 +4,7 @@ import { motion } from 'motion/react'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Activity } from 'lucide-react'
-import { Toast } from '../components/Toast'
+import { useToast } from '../components/Toast'
 import { supabase } from '../lib/supabaseClient'
 
 export default function LoginPage() {
@@ -13,9 +13,8 @@ export default function LoginPage() {
   const navigate = useNavigate()
   const from = (location.state as { from?: string } | null)?.from ?? '/dashboard'
   const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
-  const [toastVisible, setToastVisible] = useState(false)
   const [profileVerified, setProfileVerified] = useState(false)
+  const { toast } = useToast()
 
   const oauthCode = new URLSearchParams(location.search).get('code')
   const oauthError = new URLSearchParams(location.search).get('error')
@@ -23,28 +22,25 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (notRegistered) {
-      setError('No account found for this Google account. Click Get started and complete sign-up first.')
-      setToastVisible(true)
+      toast('No account found for this Google account. Click Get started and complete sign-up first.', 'error')
       const newUrl = window.location.pathname
       window.history.replaceState({}, '', newUrl)
     }
-  }, [notRegistered])
+  }, [notRegistered, toast])
 
   useEffect(() => {
     if (user || loading) return
     if (oauthError) {
-      setError('No account found for this Google account. Please sign up first.')
-      setToastVisible(true)
+      toast('No account found for this Google account. Please sign up first.', 'error')
       return
     }
     if (!oauthCode) return
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (!session) {
-        setError('No account found for this Google account. Please sign up first.')
-        setToastVisible(true)
+        toast('No account found for this Google account. Please sign up first.', 'error')
       }
     })
-  }, [oauthCode, oauthError, user, loading])
+  }, [oauthCode, oauthError, user, loading, toast])
 
   useEffect(() => {
     if (!user || loading) return
@@ -64,8 +60,7 @@ export default function LoginPage() {
       .maybeSingle()
       .then(async ({ data, error: fetchError }) => {
         if (fetchError) {
-          setError('Could not verify your account. Please try again.')
-          setToastVisible(true)
+          toast('Could not verify your account. Please try again.', 'error')
           return
         }
 
@@ -111,6 +106,7 @@ export default function LoginPage() {
           navigate('/login?error=not_registered', { replace: true })
         } else if (isComplete) {
           setProfileVerified(true)
+          navigate(from, { replace: true, state: { showSuccess: true } })
         }
       })
   }, [user, loading, navigate])
@@ -133,7 +129,6 @@ export default function LoginPage() {
 
   async function handleGoogle() {
     setBusy(true)
-    setError('')
     try {
       sessionStorage.setItem('authIntent', 'signin')
     } catch {
@@ -192,11 +187,6 @@ export default function LoginPage() {
           Continue with Google
         </button>
       </motion.div>
-      <Toast
-        message={error}
-        visible={toastVisible}
-        onClose={() => setToastVisible(false)}
-      />
     </div>
   )
 }

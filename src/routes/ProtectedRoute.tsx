@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth'
 import { useProfile } from '../hooks/useProfile'
 
 export function ProtectedRoute() {
-  const { user, loading, loggingOut } = useAuth()
+  const { user, loading, loggingOut, isLoggingOutRef } = useAuth()
   const { profile, loading: profileLoading } = useProfile()
   const location = useLocation()
 
@@ -19,7 +19,7 @@ export function ProtectedRoute() {
     )
   }
 
-  if (!user && !loggingOut) {
+  if (!user && !loggingOut && !isLoggingOutRef.current) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />
   }
 

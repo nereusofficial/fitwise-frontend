@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import { supabase } from '../../lib/supabaseClient'
+import { setLoggingOut as setGlobalLoggingOut } from '../../lib/logoutFlag'
 import { AuthContext, type AuthContextValue } from './auth-context'
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [loggingOut, setLoggingOut] = useState(false)
+  const [loggingOut] = useState(false)
+  const isLoggingOutRef = useRef(false)
 
   useEffect(() => {
     let active = true
@@ -43,21 +45,51 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const signOut = useCallback(async () => {
-    setLoggingOut(true)
+    setGlobalLoggingOut(true)
     const { error } = await supabase.auth.signOut()
     if (error) {
-      setLoggingOut(false)
+      setGlobalLoggingOut(false)
       throw error
     }
     setSession(null)
     setUser(null)
   }, [])
 
-  const clearLoggingOut = useCallback(() => setLoggingOut(false), [])
+  const performLogout = useCallback(async () => {
+    isLoggingOutRef.current = true
+    setGlobalLoggingOut(true)
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'local' })
+      if (error) {
+        isLoggingOutRef.current = false
+        setGlobalLoggingOut(false)
+        throw error
+      }
+    } catch (error) {
+      isLoggingOutRef.current = false
+      setGlobalLoggingOut(false)
+      throw error
+    }
+  }, [])
+
+  const clearLoggingOut = useCallback(() => {
+    isLoggingOutRef.current = false
+    setGlobalLoggingOut(false)
+  }, [])
 
   const value = useMemo<AuthContextValue>(
-    () => ({ session, user, loading, loggingOut, signInWithGoogle, signOut, clearLoggingOut }),
-    [session, user, loading, loggingOut, signInWithGoogle, signOut, clearLoggingOut],
+    () => ({
+      session,
+      user,
+      loading,
+      loggingOut,
+      isLoggingOutRef,
+      signInWithGoogle,
+      signOut,
+      performLogout,
+      clearLoggingOut,
+    }),
+    [session, user, loading, loggingOut, signInWithGoogle, signOut, performLogout, clearLoggingOut],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

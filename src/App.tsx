@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './features/auth/AuthContext'
+import { ToastProvider } from './components/Toast'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { Layout } from './components/Layout'
 import Home from './pages/Home'
@@ -32,7 +33,8 @@ function PageLoader() {
 function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
+      <ToastProvider>
+        <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route element={<Layout />}>
@@ -53,7 +55,8 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
           </Routes>
         </Suspense>
-      </BrowserRouter>
+        </BrowserRouter>
+      </ToastProvider>
     </AuthProvider>
   )
 }

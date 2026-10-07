@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import {
   ArrowRight,
   Calculator,
@@ -8,6 +9,7 @@ import {
   Sparkles,
   TrendingUp,
 } from 'lucide-react'
+import { useToast } from '../components/Toast'
 import { useProfile } from '../hooks/useProfile'
 import { useRecommendations } from '../hooks/useRecommendations'
 import {
@@ -37,6 +39,15 @@ function StatTile({ label, value, unit }: { label: string; value: string; unit?:
 export default function Dashboard() {
   const { profile, loading: profileLoading } = useProfile()
   const { recommendations, loading: recsLoading } = useRecommendations()
+  const location = useLocation()
+  const { toast } = useToast()
+
+  useEffect(() => {
+    if ((location.state as { showSuccess?: boolean } | null)?.showSuccess) {
+      toast("Welcome back! You're logged in.")
+      window.history.replaceState({}, '')
+    }
+  }, [location.state, toast])
 
   const loading = profileLoading || recsLoading
   const latest = recommendations[0] ?? null

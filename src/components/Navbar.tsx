@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { usePageContext } from '../hooks/usePageContext'
 import { Activity, LogOut, Menu, User, X } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
-import { usePageContext } from '../hooks/usePageContext'
 import { Button } from './Button'
+import { ConfirmDialog } from './ConfirmDialog'
 import { smoothScrollTo } from '../lib/smoothScroll'
 
 const guestSections = [
@@ -45,13 +46,13 @@ function getCenteredScrollTop(id: string): number {
 }
 
 export function Navbar() {
-  const { user, signOut, loggingOut, clearLoggingOut } = useAuth()
+  const { user, performLogout, loggingOut, clearLoggingOut } = useAuth()
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('hero')
   const [isScrolling, setIsScrolling] = useState(false)
-  const cancelScrollRef = useRef<(() => void) | null>(null)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const navigate = useNavigate()
-  const location = useLocation()
+  const cancelScrollRef = useRef<(() => void) | null>(null)
 
   const isHome = location.pathname === '/'
   const pageContext = usePageContext()
@@ -90,10 +91,14 @@ export function Navbar() {
     }
   }, [])
 
-  async function handleSignOut() {
-    await signOut()
-    setMenuOpen(false)
-    navigate('/')
+  function handleSignOut() {
+    setShowLogoutConfirm(true)
+  }
+
+  async function confirmSignOut() {
+    setShowLogoutConfirm(false)
+    navigate('/', { replace: true, state: { loggedOut: true } })
+    await performLogout()
   }
 
   function handleSectionClick(id: string) {
@@ -135,7 +140,8 @@ export function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
+    <>
+      <header className="sticky top-0 z-50 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10" aria-label="Main navigation">
         {isHome ? (
           <div className="flex shrink-0 cursor-default select-none items-center gap-2">
@@ -298,6 +304,17 @@ export function Navbar() {
           </div>
         </div>
       )}
-    </header>
+
+      </header>
+
+      <ConfirmDialog
+        isOpen={showLogoutConfirm}
+        title="Log out?"
+        message="Are you sure you want to log out of your account?"
+        confirmLabel="Log out"
+        onConfirm={confirmSignOut}
+        onCancel={() => setShowLogoutConfirm(false)}
+      />
+    </>
   )
 }

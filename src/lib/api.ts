@@ -1,4 +1,5 @@
 import { supabase } from './supabaseClient'
+import { getLoggingOut } from './logoutFlag'
 import type { ChatMessage, Recommendation, RecommendationInput } from '../types'
 
 export class ApiError extends Error {
@@ -54,7 +55,9 @@ export async function fetchRecommendation(input: RecommendationInput): Promise<R
   })
 
   if (res.status === 401) {
-    await supabase.auth.signOut()
+    if (!getLoggingOut()) {
+      await supabase.auth.signOut()
+    }
     throw new ApiError(401, 'Your session has expired. Please log in again.')
   }
 
@@ -92,7 +95,9 @@ export async function sendChatMessage(messages: ChatMessage[]): Promise<string> 
   })
 
   if (res.status === 401) {
-    await supabase.auth.signOut()
+    if (!getLoggingOut()) {
+      await supabase.auth.signOut()
+    }
     throw new ApiError(401, 'Your session has expired. Please log in again.')
   }
 

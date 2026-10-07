@@ -1,5 +1,5 @@
-import { useRef } from 'react'
-import { Link } from 'react-router-dom'
+import { useEffect, useRef } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'motion/react'
 import {
   Activity,
@@ -15,6 +15,7 @@ import {
   Utensils,
 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { useToast } from '../components/Toast'
 import { Button } from '../components/Button'
 import { EASE, fadeUp, scaleIn, stagger } from '../lib/animations'
 
@@ -518,6 +519,19 @@ function FinalCta() {
 }
 
 export default function Home() {
+  const location = useLocation()
+  const navigate = useNavigate()
+  const { clearLoggingOut } = useAuth()
+  const { toast } = useToast()
+
+  useEffect(() => {
+    if ((location.state as { loggedOut?: boolean } | null)?.loggedOut) {
+      toast("You've been logged out.")
+      clearLoggingOut()
+      navigate('/', { replace: true, state: null })
+    }
+  }, [location.state, toast, clearLoggingOut, navigate])
+
   return (
     <>
       <Hero />
