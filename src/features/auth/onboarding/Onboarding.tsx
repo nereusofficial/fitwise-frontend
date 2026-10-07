@@ -57,7 +57,6 @@ export function Onboarding() {
   const [data, setData] = useState<OnboardingData>(() => loadStored() ?? emptyData)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
-  const [consent, setConsent] = useState({ terms: false, privacy: false })
   const [readDocs, setReadDocs] = useState({ terms: false, privacy: false })
   const [activeDoc, setActiveDoc] = useState<'terms' | 'privacy' | null>(null)
 
@@ -183,8 +182,7 @@ export function Onboarding() {
   }
 
   async function handleConsent() {
-    if (!consent.terms || !consent.privacy) {
-      setError('Please accept the Terms and Privacy Policy to continue.')
+    if (!readDocs.terms || !readDocs.privacy) {
       return
     }
     setBusy(true)
@@ -220,11 +218,8 @@ export function Onboarding() {
   if (isConsentStep) {
     return (
       <ConsentStep
-        consent={consent}
-        setConsent={setConsent}
         onContinue={handleConsent}
         busy={busy}
-        error={error}
         readDocs={readDocs}
         setReadDocs={setReadDocs}
         activeDoc={activeDoc}
@@ -520,32 +515,20 @@ function SignInStep({ onGoogle, busy }: { onGoogle: () => void; busy: boolean })
 }
 
 function ConsentStep({
-  consent,
-  setConsent,
   onContinue,
   busy,
-  error,
   readDocs,
   setReadDocs,
   activeDoc,
   setActiveDoc,
 }: {
-  consent: { terms: boolean; privacy: boolean }
-  setConsent: (c: { terms: boolean; privacy: boolean }) => void
   onContinue: () => void
   busy: boolean
-  error: string
   readDocs: { terms: boolean; privacy: boolean }
   setReadDocs: (d: { terms: boolean; privacy: boolean }) => void
   activeDoc: 'terms' | 'privacy' | null
   setActiveDoc: (d: 'terms' | 'privacy' | null) => void
 }) {
-  const openDoc = (doc: 'terms' | 'privacy') => {
-    if (!readDocs[doc]) {
-      setActiveDoc(doc)
-    }
-  }
-
   const handleAgree = () => {
     if (activeDoc) {
       setReadDocs({ ...readDocs, [activeDoc]: true })
@@ -553,17 +536,15 @@ function ConsentStep({
     }
   }
 
-  const handleCheckboxClick = (doc: 'terms' | 'privacy') => {
-    if (!readDocs[doc]) {
-      openDoc(doc)
-    }
-  }
+  const termsRead = readDocs.terms
+  const privacyRead = readDocs.privacy
+  const allRead = termsRead && privacyRead
 
-  const toggleCheckbox = (doc: 'terms' | 'privacy') => {
-    if (readDocs[doc]) {
-      setConsent({ ...consent, [doc]: !consent[doc] })
-    }
-  }
+  const helperText = !termsRead && !privacyRead
+    ? 'Read both documents to continue.'
+    : termsRead && !privacyRead
+      ? 'Read the Privacy Policy to continue.'
+      : null
 
   return (
     <>
@@ -586,47 +567,54 @@ function ConsentStep({
             Almost done
           </h2>
           <p className="mt-2 text-ink-500 dark:text-ink-400">
-            Review and accept to finish setting up your account.
+            Read both documents to finish setting up your account.
           </p>
 
           <div className="mt-6 flex flex-col gap-3">
-            <ConsentCheckbox
-              checked={consent.terms}
-              onToggle={() => toggleCheckbox('terms')}
-              onClick={() => handleCheckboxClick('terms')}
-              label="I agree to the"
-              docLabel="Terms of Service"
+            <DocStep
+              stepNumber={1}
+              title="Read the Terms of Service"
+              done={termsRead}
+              locked={false}
+              onOpen={() => setActiveDoc('terms')}
             />
-            <ConsentCheckbox
-              checked={consent.privacy}
-              onToggle={() => toggleCheckbox('privacy')}
-              onClick={() => handleCheckboxClick('privacy')}
-              label="I agree to the"
-              docLabel="Privacy Policy"
+            <DocStep
+              stepNumber={2}
+              title="Read the Privacy Policy"
+              done={privacyRead}
+              locked={!termsRead}
+              lockedHint="Read the Terms of Service first"
+              onOpen={() => setActiveDoc('privacy')}
             />
           </div>
 
-          {!readDocs.terms || !readDocs.privacy ? (
-            <p className="mt-4 text-sm text-ink-500 dark:text-ink-400">
-              Open and read each document to continue
-            </p>
-          ) : null}
-
-          {error && (
-            <div className="mt-4">
-              <Alert variant="error">{error}</Alert>
-            </div>
-          )}
+          <p className="mt-4 text-sm text-ink-500 dark:text-ink-400">
+            By clicking Finish setup, you agree to the{' '}
+            <span className="font-semibold text-brand-600 dark:text-brand-400">
+              Terms of Service
+            </span>{' '}
+            and{' '}
+            <span className="font-semibold text-brand-600 dark:text-brand-400">
+              Privacy Policy
+            </span>
+            .
+          </p>
 
           <button
             type="button"
             onClick={onContinue}
-            disabled={busy || !consent.terms || !consent.privacy}
-            className="mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-brand-500 px-6 py-3.5 font-semibold text-ink-950 transition-colors hover:bg-brand-400 disabled:cursor-not-allowed disabled:opacity-60"
+            disabled={busy || !allRead}
+            className="mt-6 inline-flex w-full cursor-pointer items-center justify-center gap-2 rounded-2xl bg-brand-500 px-6 py-3.5 font-semibold text-ink-950 transition-colors hover:bg-brand-400 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {busy ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" /> : <Check className="h-5 w-5" aria-hidden="true" />}
             Finish setup
           </button>
+
+          {helperText && (
+            <p className="mt-3 text-center text-sm text-ink-500 dark:text-ink-400" aria-live="polite">
+              {helperText}
+            </p>
+          )}
         </motion.div>
       </div>
 
@@ -640,46 +628,49 @@ function ConsentStep({
   )
 }
 
-function ConsentCheckbox({
-  checked,
-  onToggle,
-  onClick,
-  label,
-  docLabel,
+function DocStep({
+  stepNumber,
+  title,
+  done,
+  locked,
+  lockedHint,
+  onOpen,
 }: {
-  checked: boolean
-  onToggle: () => void
-  onClick: () => void
-  label: string
-  docLabel: string
+  stepNumber: number
+  title: string
+  done: boolean
+  locked: boolean
+  lockedHint?: string
+  onOpen: () => void
 }) {
   return (
-    <label className="flex cursor-pointer items-center gap-3 rounded-2xl border-2 border-ink-200 p-4 transition-colors hover:border-ink-300 dark:border-ink-700 dark:hover:border-ink-600">
-      <input
-        type="checkbox"
-        checked={checked}
-        onChange={(e) => {
-          e.stopPropagation()
-          onToggle()
-        }}
-        onClick={(e) => e.stopPropagation()}
-        className="h-5 w-5 rounded border-ink-300 text-brand-500 focus:ring-brand-500"
-      />
-      <span className="text-sm font-medium text-ink-800 dark:text-ink-200">
-        {label}{' '}
-        <button
-          type="button"
-          onClick={(e) => {
-            e.preventDefault()
-            e.stopPropagation()
-            onClick()
-          }}
-          className="cursor-pointer font-semibold text-brand-600 underline hover:text-brand-500 focus-visible:outline-2 focus-visible:outline-brand-500 dark:text-brand-400"
-        >
-          {docLabel}
-        </button>
+    <button
+      type="button"
+      onClick={onOpen}
+      disabled={locked}
+      className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-brand-500 ${
+        done
+          ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/40'
+          : locked
+            ? 'cursor-not-allowed border-ink-200 opacity-50 dark:border-ink-700'
+            : 'border-brand-500 bg-white hover:border-brand-400 dark:border-brand-500 dark:bg-ink-900 dark:hover:border-brand-400'
+      }`}
+    >
+      <span
+        className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold ${
+          done ? 'bg-brand-500 text-ink-950' : 'bg-ink-200 text-ink-600 dark:bg-ink-700 dark:text-ink-300'
+        }`}
+      >
+        {done ? <Check className="h-4 w-4" aria-hidden="true" /> : stepNumber}
       </span>
-    </label>
+      <span className="flex-1">
+        <span className="block text-sm font-semibold text-ink-900 dark:text-ink-100">{title}</span>
+        {locked && lockedHint && (
+          <span className="block text-xs text-ink-500 dark:text-ink-400">{lockedHint}</span>
+        )}
+      </span>
+
+    </button>
   )
 }
 
