@@ -29,7 +29,6 @@ export function useLogout() {
         message: "You've been logged out. See you soon!",
         variant: 'success',
         onClose: () => {
-          clearLoggingOut()
           navigate('/', { replace: true })
         },
       })

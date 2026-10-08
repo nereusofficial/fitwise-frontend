@@ -1,0 +1,7 @@
+{
+  "css.customData": [
+    "./node_modules/tailwindcss/index.css"
+  ],
+  "css.validate": false,
+  "tailwindCSS.experimental.configFile": null
+}
