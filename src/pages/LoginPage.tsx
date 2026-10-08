@@ -3,7 +3,7 @@ import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { motion } from 'motion/react'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
-import { Activity } from 'lucide-react'
+
 import { useToast } from '../components/Toast'
 import { supabase } from '../lib/supabaseClient'
 
@@ -30,7 +30,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user || loading) return
-    if (oauthError) {
+    if (oauthError && !notRegistered) {
       toast('No account found for this Google account. Please sign up first.', 'error')
       return
     }
@@ -40,7 +40,7 @@ export default function LoginPage() {
         toast('No account found for this Google account. Please sign up first.', 'error')
       }
     })
-  }, [oauthCode, oauthError, user, loading, toast])
+  }, [oauthCode, oauthError, notRegistered, user, loading, toast])
 
   useEffect(() => {
     if (!user || loading) return
@@ -156,7 +156,7 @@ export default function LoginPage() {
         initial={{ opacity: 0, y: 24 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-        className="relative w-full max-w-md rounded-3xl border border-ink-800 bg-ink-900/80 p-8 text-center shadow-xl backdrop-blur"
+        className="relative w-full max-w-md rounded-3xl border border-ink-800 bg-ink-900/80 px-8 pb-8 pt-16 text-center shadow-xl backdrop-blur"
       >
         <button
           type="button"
@@ -167,14 +167,11 @@ export default function LoginPage() {
           <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           Back
         </button>
-        <div className="mb-6 flex items-center justify-center gap-2">
-          <Activity className="h-8 w-8 text-brand-500" aria-hidden="true" />
-          <span className="font-display text-3xl font-bold tracking-wide text-ink-100">
-            FitWise
-          </span>
+        <div className="mb-4 flex items-center justify-center">
+          <img src="/icon.png" alt="FitWise" className="h-[56px] w-auto max-[390px]:h-[56px] sm:h-[96px] sm:w-auto" />
         </div>
         <h1 className="font-display text-3xl font-bold tracking-wide text-ink-100">
-          Welcome back
+          Welcome back to FitWise
         </h1>
         <p className="mt-2 text-ink-400">Sign in with Google to continue.</p>
         <button

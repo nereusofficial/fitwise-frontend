@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { usePageContext } from '../hooks/usePageContext'
-import { Activity, LogOut, Menu, User, X } from 'lucide-react'
+import { LogOut, Menu, User, X } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 import { Button } from './Button'
 import { ConfirmDialog } from './ConfirmDialog'
@@ -144,15 +144,12 @@ export function Navbar() {
       <header className="sticky top-0 z-50 border-b border-ink-800 bg-ink-950/90 backdrop-blur">
       <nav className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-10" aria-label="Main navigation">
         {isHome ? (
-          <div className="flex shrink-0 cursor-default select-none items-center gap-2">
-            <Activity className="h-7 w-7 text-brand-500" aria-hidden="true" />
-            <span className="font-display text-2xl font-bold tracking-wide text-ink-100">
-              FitWise
-            </span>
+          <div className="flex shrink-0 cursor-default select-none items-center">
+            <img src="/icon.png" alt="FitWise" className="h-9 w-9" />
           </div>
         ) : (
           <div
-            className="flex shrink-0 cursor-pointer items-center gap-2"
+            className="flex shrink-0 cursor-pointer items-center"
             onClick={handleLogoClick}
             role="button"
             aria-label="FitWise home"
@@ -164,10 +161,7 @@ export function Navbar() {
               }
             }}
           >
-            <Activity className="h-7 w-7 text-brand-500" aria-hidden="true" />
-            <span className="font-display text-2xl font-bold tracking-wide text-ink-100">
-              FitWise
-            </span>
+            <img src="/icon.png" alt="FitWise" className="h-9 w-9" />
           </div>
         )}
 

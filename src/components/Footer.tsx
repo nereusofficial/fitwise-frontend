@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Activity } from 'lucide-react'
+
 
 export function Footer() {
   return (
@@ -7,11 +7,8 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-4 py-10">
         <div className="grid gap-8 md:grid-cols-3">
           <div>
-            <div className="mb-3 flex items-center gap-2">
-              <Activity className="h-6 w-6 text-brand-500" aria-hidden="true" />
-              <span className="font-display text-xl font-bold tracking-wide text-ink-900 dark:text-ink-100">
-                FitWise
-              </span>
+            <div className="mb-3 flex items-center">
+              <img src="/icon.png" alt="FitWise" className="h-8 w-8" />
             </div>
             <p className="text-sm text-ink-500 dark:text-ink-400">
               Your AI-powered fitness companion. Build workout and nutrition plans tailored to your body and goals.
