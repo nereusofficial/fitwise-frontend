@@ -239,12 +239,12 @@ function PopupIcon({ variant }: { variant: PopupVariant }) {
 
   const glowClass =
     variant === 'success'
-      ? 'shadow-[0_0_40px_rgba(74,222,128,0.3)]'
+      ? 'bg-accent-500/20'
       : variant === 'error'
-        ? 'shadow-[0_0_40px_rgba(248,113,113,0.3)]'
+        ? 'bg-red-500/20'
         : variant === 'warning'
-          ? 'shadow-[0_0_40px_rgba(251,191,36,0.3)]'
-          : 'shadow-[0_0_40px_rgba(249,115,22,0.3)]'
+          ? 'bg-amber-500/20'
+          : 'bg-brand-500/20'
 
   return (
     <div className={`mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-ink-900 ${glowClass}`}>

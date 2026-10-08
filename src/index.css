@@ -113,7 +113,7 @@ body {
 
 @keyframes popup-triangle-draw {
   from {
-    stroke-dashoffset: 80;
+    stroke-dashoffset: 139;
   }
   to {
     stroke-dashoffset: 0;
@@ -214,8 +214,8 @@ body {
 }
 
 .popup-triangle-draw {
-  stroke-dasharray: 80;
-  stroke-dashoffset: 80;
+  stroke-dasharray: 139;
+  stroke-dashoffset: 139;
   animation: popup-triangle-draw 0.6s ease-out forwards;
 }
 
