@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { usePageContext } from '../hooks/usePageContext'
 import { LogOut, Menu, User, X } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
+import { useLogout } from '../features/auth/auth-context'
 import { Button } from './Button'
 import { ConfirmDialog } from './ConfirmDialog'
 import { smoothScrollTo } from '../lib/smoothScroll'
@@ -46,7 +47,8 @@ function getCenteredScrollTop(id: string): number {
 }
 
 export function Navbar() {
-  const { user, performLogout, loggingOut, clearLoggingOut } = useAuth()
+  const { user } = useAuth()
+  const { logout, loggingOut } = useLogout()
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeSection, setActiveSection] = useState('hero')
   const [isScrolling, setIsScrolling] = useState(false)
@@ -59,11 +61,7 @@ export function Navbar() {
   const showLandingNav = pageContext === 'landing' || pageContext === 'auth'
   const links = showLandingNav ? guestSections : userLinks
 
-  useEffect(() => {
-    if (loggingOut && location.pathname === '/') {
-      clearLoggingOut()
-    }
-  }, [location.pathname, loggingOut, clearLoggingOut])
+
 
   useEffect(() => {
     if (!isHome || isScrolling) return
@@ -97,8 +95,7 @@ export function Navbar() {
 
   async function confirmSignOut() {
     setShowLogoutConfirm(false)
-    navigate('/', { replace: true, state: { loggedOut: true } })
-    await performLogout()
+    await logout()
   }
 
   function handleSectionClick(id: string) {
@@ -305,7 +302,8 @@ export function Navbar() {
         isOpen={showLogoutConfirm}
         title="Log out?"
         message="Are you sure you want to log out of your account?"
-        confirmLabel="Log out"
+        confirmLabel={loggingOut ? 'Logging out...' : 'Log out'}
+        loading={loggingOut}
         onConfirm={confirmSignOut}
         onCancel={() => setShowLogoutConfirm(false)}
       />

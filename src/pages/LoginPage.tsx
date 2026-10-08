@@ -4,7 +4,7 @@ import { motion } from 'motion/react'
 import { ArrowLeft, Loader2 } from 'lucide-react'
 import { useAuth } from '../hooks/useAuth'
 
-import { useToast } from '../components/Toast'
+import { usePopup } from '../components/Popup'
 import { supabase } from '../lib/supabaseClient'
 
 export default function LoginPage() {
@@ -14,33 +14,33 @@ export default function LoginPage() {
   const from = (location.state as { from?: string } | null)?.from ?? '/dashboard'
   const [busy, setBusy] = useState(false)
   const [profileVerified, setProfileVerified] = useState(false)
-  const { toast } = useToast()
+  const { showPopup } = usePopup()
 
-  const oauthCode = new URLSearchParams(location.search).get('code')
   const oauthError = new URLSearchParams(location.search).get('error')
   const notRegistered = new URLSearchParams(location.search).get('error') === 'not_registered'
 
   useEffect(() => {
     if (notRegistered) {
-      toast('No account found for this Google account. Click Get started and complete sign-up first.', 'error')
+      showPopup({
+        title: 'Account not found',
+        message: 'No account found for this Google account. Click Get started and complete sign-up first.',
+        variant: 'error',
+      })
       const newUrl = window.location.pathname
       window.history.replaceState({}, '', newUrl)
     }
-  }, [notRegistered, toast])
+  }, [notRegistered, showPopup, navigate])
 
   useEffect(() => {
     if (user || loading) return
     if (oauthError && !notRegistered) {
-      toast('No account found for this Google account. Please sign up first.', 'error')
-      return
+      showPopup({
+        title: 'Account not found',
+        message: 'No account found for this Google account. Please sign up first.',
+        variant: 'error',
+      })
     }
-    if (!oauthCode) return
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) {
-        toast('No account found for this Google account. Please sign up first.', 'error')
-      }
-    })
-  }, [oauthCode, oauthError, notRegistered, user, loading, toast])
+  }, [oauthError, notRegistered, user, loading, showPopup])
 
   useEffect(() => {
     if (!user || loading) return
@@ -60,7 +60,11 @@ export default function LoginPage() {
       .maybeSingle()
       .then(async ({ data, error: fetchError }) => {
         if (fetchError) {
-          toast('Could not verify your account. Please try again.', 'error')
+          showPopup({
+            title: 'Verification failed',
+            message: 'Could not verify your account. Please try again.',
+            variant: 'error',
+          })
           return
         }
 

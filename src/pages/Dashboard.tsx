@@ -9,7 +9,7 @@ import {
   Sparkles,
   TrendingUp,
 } from 'lucide-react'
-import { useToast } from '../components/Toast'
+import { usePopup } from '../components/Popup'
 import { useProfile } from '../hooks/useProfile'
 import { useRecommendations } from '../hooks/useRecommendations'
 import {
@@ -40,14 +40,19 @@ export default function Dashboard() {
   const { profile, loading: profileLoading } = useProfile()
   const { recommendations, loading: recsLoading } = useRecommendations()
   const location = useLocation()
-  const { toast } = useToast()
+  const { showPopup } = usePopup()
 
   useEffect(() => {
     if ((location.state as { showSuccess?: boolean } | null)?.showSuccess) {
-      toast("Welcome back! You're logged in.")
+      showPopup({
+        title: 'Login successful',
+        message: "Welcome back! You're all set.",
+        variant: 'success',
+      })
       window.history.replaceState({}, '')
     }
-  }, [location.state, toast])
+
+  }, [location.state, showPopup])
 
   const loading = profileLoading || recsLoading
   const latest = recommendations[0] ?? null

@@ -24,7 +24,7 @@ const PUBLIC_PROMPTS = [
 const PUBLIC_OPENING = "Hi! I can answer questions about FitWise. What would you like to know?"
 
 export function ChatWidget() {
-  const { user, signInWithGoogle } = useAuth()
+  const { user, signInWithGoogle, loggingOut } = useAuth()
   const pageContext = usePageContext()
   const navigate = useNavigate()
 
@@ -142,6 +142,7 @@ export function ChatWidget() {
 
   if (isPublic && user) return null
   if (!isPublic && !user) return null
+  if (loggingOut) return null
 
   return (
     <>

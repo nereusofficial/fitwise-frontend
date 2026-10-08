@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './features/auth/AuthContext'
-import { ToastProvider } from './components/Toast'
+import { PopupProvider } from './components/Popup'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { Layout } from './components/Layout'
 import Home from './pages/Home'
@@ -11,6 +11,7 @@ import TermsPage from './pages/TermsPage'
 import PrivacyPage from './pages/PrivacyPage'
 import NotFound from './pages/NotFound'
 import Calculators from './pages/Calculators'
+import DevPopups from './pages/DevPopups'
 
 const Dashboard = lazy(() => import('./pages/Dashboard'))
 const ProfilePage = lazy(() => import('./pages/ProfilePage'))
@@ -33,7 +34,7 @@ function PageLoader() {
 function App() {
   return (
     <AuthProvider>
-      <ToastProvider>
+      <PopupProvider>
         <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
           <Routes>
@@ -53,10 +54,11 @@ function App() {
             </Route>
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+            {import.meta.env.DEV && <Route path="/dev/popups" element={<DevPopups />} />}
           </Routes>
         </Suspense>
         </BrowserRouter>
-      </ToastProvider>
+      </PopupProvider>
     </AuthProvider>
   )
 }
