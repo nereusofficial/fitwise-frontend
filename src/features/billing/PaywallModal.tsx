@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom'
 import { Check, ChevronLeft, Crown, X } from 'lucide-react'
 import { demoSubscribe } from '../../lib/api'
 import { usePopup } from '../../components/Popup'
+import { useBilling } from './BillingContext'
 import { PRICING, type BillingInterval } from './pricing'
 
 interface PaywallModalProps {
@@ -16,6 +17,7 @@ export function PaywallModal({ isOpen, onClose }: PaywallModalProps) {
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
   const { showPopup } = usePopup()
+  const { refresh } = useBilling()
   const previousFocusRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export function PaywallModal({ isOpen, onClose }: PaywallModalProps) {
     setError('')
     try {
       await demoSubscribe(interval)
+      refresh()
       onClose()
       showPopup({
         title: "You're now Pro",
@@ -64,27 +67,45 @@ export function PaywallModal({ isOpen, onClose }: PaywallModalProps) {
       aria-labelledby="paywall-title"
     >
       <div
-        className="w-full max-w-md rounded-t-3xl border border-ink-700 bg-ink-950 p-6 text-center shadow-2xl sm:rounded-3xl"
+        className="relative w-full max-w-md overflow-hidden rounded-t-3xl border border-ink-700 bg-ink-950 p-6 text-center shadow-2xl sm:rounded-3xl"
         onClick={(e) => e.stopPropagation()}
       >
-        <button
-          type="button"
-          onClick={() => !busy && onClose()}
-          aria-label="Close"
-          className="absolute right-4 top-4 cursor-pointer rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100 focus-visible:outline-2 focus-visible:outline-brand-500"
-        >
-          <X className="h-5 w-5" />
-        </button>
+        <div className="grid grid-cols-[auto_1fr_auto] items-center">
+          <div>
+            {step === 'checkout' && (
+              <button
+                type="button"
+                onClick={() => !busy && setStep('intro')}
+                disabled={busy}
+                className="inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-sm text-ink-400 transition-colors hover:text-ink-100 disabled:opacity-50"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Back
+              </button>
+            )}
+          </div>
+          <h2 id="paywall-title" className="font-display text-lg font-bold tracking-wide text-ink-100">
+            {step === 'intro' ? 'Unlock unlimited plans' : 'Order summary'}
+          </h2>
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={() => !busy && onClose()}
+              disabled={busy}
+              aria-label="Close"
+              className="cursor-pointer rounded-lg p-2 text-ink-400 transition-colors hover:bg-ink-800 hover:text-ink-100 disabled:opacity-50"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+        </div>
 
         {step === 'intro' && (
           <>
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-500 shadow-[0_0_30px_rgba(249,115,22,0.4)]">
+            <div className="mx-auto mt-5 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-accent-500">
               <Crown className="h-8 w-8 text-ink-950" />
             </div>
             <p className="mt-4 text-xs font-bold uppercase tracking-widest text-brand-400">FitWise Pro</p>
-            <h2 id="paywall-title" className="font-display mt-1 text-2xl font-bold tracking-wide text-ink-100">
-              Unlock unlimited plans
-            </h2>
             <p className="mt-2 text-sm text-ink-400">
               You've used your free plan. Upgrade to keep generating personalized workout and nutrition plans.
             </p>
@@ -121,7 +142,7 @@ export function PaywallModal({ isOpen, onClose }: PaywallModalProps) {
                     </span>
                   )}
                   <span className="block text-xs font-semibold uppercase tracking-wide text-ink-400">
-                    {key === 'month' ? 'month' : 'year'}
+                    {key === 'month' ? 'Monthly' : 'Yearly'}
                   </span>
                   <span className="mt-1 block text-sm font-bold text-ink-100">{PRICING[key].label}</span>
                 </button>
@@ -131,14 +152,16 @@ export function PaywallModal({ isOpen, onClose }: PaywallModalProps) {
             <button
               type="button"
               onClick={() => setStep('checkout')}
-              className="mt-6 w-full cursor-pointer rounded-xl bg-brand-500 px-6 py-3.5 font-semibold text-ink-950 transition-colors hover:bg-brand-400 focus-visible:outline-2 focus-visible:outline-brand-500"
+              disabled={busy}
+              className="mt-6 w-full cursor-pointer rounded-xl bg-brand-500 px-6 py-3.5 font-semibold text-ink-950 transition-colors hover:bg-brand-400 disabled:opacity-60"
             >
               Upgrade to Pro
             </button>
             <button
               type="button"
               onClick={() => !busy && onClose()}
-              className="mt-3 w-full cursor-pointer rounded-xl px-6 py-3 text-sm font-semibold text-ink-400 transition-colors hover:text-ink-200"
+              disabled={busy}
+              className="mt-3 w-full cursor-pointer rounded-xl px-6 py-3 text-sm font-semibold text-ink-400 transition-colors hover:text-ink-200 disabled:opacity-50"
             >
               Maybe later
             </button>
@@ -150,20 +173,10 @@ export function PaywallModal({ isOpen, onClose }: PaywallModalProps) {
 
         {step === 'checkout' && (
           <>
-            <button
-              type="button"
-              onClick={() => setStep('intro')}
-              className="absolute left-4 top-4 inline-flex cursor-pointer items-center gap-1 rounded-lg px-2 py-1 text-sm text-ink-400 transition-colors hover:text-ink-100"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back
-            </button>
-
-            <h2 className="font-display text-xl font-bold tracking-wide text-ink-100">Order summary</h2>
             <div className="mt-4 rounded-xl border border-ink-700 bg-ink-900 p-4 text-left">
               <div className="flex justify-between text-sm">
                 <span className="text-ink-400">Plan</span>
-                <span className="font-semibold text-ink-100">FitWise Pro ({interval === 'month' ? 'month' : 'year'})</span>
+                <span className="font-semibold text-ink-100">FitWise Pro ({interval === 'month' ? 'Monthly' : 'Yearly'})</span>
               </div>
               <div className="mt-2 flex justify-between text-sm">
                 <span className="text-ink-400">Total</span>
@@ -178,7 +191,7 @@ export function PaywallModal({ isOpen, onClose }: PaywallModalProps) {
               type="button"
               onClick={handleActivate}
               disabled={busy}
-              className="mt-5 w-full cursor-pointer rounded-xl bg-brand-500 px-6 py-3.5 font-semibold text-ink-950 transition-colors hover:bg-brand-400 disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-brand-500"
+              className="mt-5 w-full cursor-pointer rounded-xl bg-brand-500 px-6 py-3.5 font-semibold text-ink-950 transition-colors hover:bg-brand-400 disabled:opacity-60"
             >
               {busy ? 'Activating...' : 'Activate Pro (demo)'}
             </button>

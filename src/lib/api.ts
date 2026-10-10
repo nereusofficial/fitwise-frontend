@@ -16,6 +16,7 @@ export class ApiError extends Error {
 
 interface ErrorBody {
   error?: string
+  code?: string
   details?: string[]
 }
 
@@ -70,7 +71,7 @@ export async function fetchRecommendation(input: RecommendationInput): Promise<R
     } catch {
       // Response wasn't JSON; fall back to a generic message.
     }
-    throw new ApiError(res.status, friendlyMessage(res.status, body), body?.error)
+    throw new ApiError(res.status, friendlyMessage(res.status, body), body?.code)
   }
 
   const data = (await res.json()) as { recommendation: Recommendation }

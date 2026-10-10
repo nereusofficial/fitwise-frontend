@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useProfile } from '../hooks/useProfile'
-import { useBilling } from '../hooks/useBilling'
+import { useBilling } from '../features/billing/BillingContext'
 import { demoCancel } from '../lib/api'
 import { ProfileForm, type ProfileFormValues } from '../features/profile/ProfileForm'
 import { PaywallModal } from '../features/billing/PaywallModal'

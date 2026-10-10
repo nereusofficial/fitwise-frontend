@@ -2,6 +2,7 @@ import { lazy, Suspense } from 'react'
 import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './features/auth/AuthContext'
 import { PopupProvider } from './components/Popup'
+import { BillingProvider } from './features/billing/BillingContext'
 import { ProtectedRoute } from './routes/ProtectedRoute'
 import { Layout } from './components/Layout'
 import Home from './pages/Home'
@@ -35,6 +36,7 @@ function App() {
   return (
     <AuthProvider>
       <PopupProvider>
+        <BillingProvider>
         <BrowserRouter>
         <Suspense fallback={<PageLoader />}>
           <Routes>
@@ -58,6 +60,7 @@ function App() {
           </Routes>
         </Suspense>
         </BrowserRouter>
+        </BillingProvider>
       </PopupProvider>
     </AuthProvider>
   )
