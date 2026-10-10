@@ -590,11 +590,11 @@ function ConsentStep({
 
           <p className="mt-4 text-sm text-ink-500 dark:text-ink-400">
             By clicking Finish setup, you agree to the{' '}
-            <span className="font-semibold text-brand-600 dark:text-brand-400">
+            <span className="cursor-pointer font-semibold text-brand-600 dark:text-brand-400">
               Terms of Service
             </span>{' '}
             and{' '}
-            <span className="font-semibold text-brand-600 dark:text-brand-400">
+            <span className="cursor-pointer font-semibold text-brand-600 dark:text-brand-400">
               Privacy Policy
             </span>
             .
@@ -650,10 +650,10 @@ function DocStep({
       disabled={locked}
       className={`flex w-full items-center gap-4 rounded-2xl border-2 p-4 text-left transition-colors focus-visible:outline-2 focus-visible:outline-brand-500 ${
         done
-          ? 'border-brand-500 bg-brand-50 dark:bg-brand-950/40'
+          ? 'cursor-default border-brand-500 bg-brand-50 dark:bg-brand-950/40'
           : locked
             ? 'cursor-not-allowed border-ink-200 opacity-50 dark:border-ink-700'
-            : 'border-brand-500 bg-white hover:border-brand-400 dark:border-brand-500 dark:bg-ink-900 dark:hover:border-brand-400'
+            : 'cursor-pointer border-brand-500 bg-white hover:border-brand-400 dark:border-brand-500 dark:bg-ink-900 dark:hover:border-brand-400'
       }`}
     >
       <span

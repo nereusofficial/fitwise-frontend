@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ShieldCheck } from 'lucide-react'
 import { useProfile } from '../hooks/useProfile'
@@ -21,6 +21,12 @@ export default function PlanPage() {
   const [result, setResult] = useState<Recommendation | null>(null)
   const [showPaywall, setShowPaywall] = useState(false)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    const handler = () => setShowPaywall(true)
+    window.addEventListener('open-paywall', handler)
+    return () => window.removeEventListener('open-paywall', handler)
+  }, [])
 
   async function handleGenerate(values: PlanFormValues) {
     if (status && !status.isPro && status.freePlansRemaining === 0) {
