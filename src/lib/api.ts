@@ -1,14 +1,16 @@
 import { supabase } from './supabaseClient'
 import { getLoggingOut } from './logoutFlag'
-import type { ChatMessage, Recommendation, RecommendationInput } from '../types'
+import type { BillingStatus, ChatMessage, Recommendation, RecommendationInput } from '../types'
 
 export class ApiError extends Error {
   status: number
+  code?: string
 
-  constructor(status: number, message: string) {
+  constructor(status: number, message: string, code?: string) {
     super(message)
     this.name = 'ApiError'
     this.status = status
+    this.code = code
   }
 }
 
@@ -68,11 +70,53 @@ export async function fetchRecommendation(input: RecommendationInput): Promise<R
     } catch {
       // Response wasn't JSON; fall back to a generic message.
     }
-    throw new ApiError(res.status, friendlyMessage(res.status, body))
+    throw new ApiError(res.status, friendlyMessage(res.status, body), body?.error)
   }
 
   const data = (await res.json()) as { recommendation: Recommendation }
   return data.recommendation
+}
+
+export async function getBillingStatus(): Promise<BillingStatus> {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new ApiError(401, 'You must be logged in.')
+
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/billing/status`, {
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+
+  if (!res.ok) throw new ApiError(res.status, 'Failed to load billing status.')
+  return (await res.json()) as BillingStatus
+}
+
+export async function demoSubscribe(interval: 'month' | 'year'): Promise<BillingStatus> {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new ApiError(401, 'You must be logged in.')
+
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/billing/demo-subscribe`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
+    body: JSON.stringify({ interval }),
+  })
+
+  if (!res.ok) throw new ApiError(res.status, 'Failed to subscribe.')
+  return (await res.json()) as BillingStatus
+}
+
+export async function demoCancel(): Promise<BillingStatus> {
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session) throw new ApiError(401, 'You must be logged in.')
+
+  const res = await fetch(`${import.meta.env.VITE_API_URL}/api/billing/demo-cancel`, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${session.access_token}` },
+  })
+
+  if (!res.ok) throw new ApiError(res.status, 'Failed to cancel subscription.')
+  return (await res.json()) as BillingStatus
 }
 
 export async function sendChatMessage(messages: ChatMessage[]): Promise<string> {

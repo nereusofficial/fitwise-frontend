@@ -1,11 +1,32 @@
+import { useState } from 'react'
 import { useProfile } from '../hooks/useProfile'
+import { useBilling } from '../hooks/useBilling'
+import { demoCancel } from '../lib/api'
 import { ProfileForm, type ProfileFormValues } from '../features/profile/ProfileForm'
+import { PaywallModal } from '../features/billing/PaywallModal'
+import { ConfirmDialog } from '../components/ConfirmDialog'
 import { Card, CardHeader, CardTitle } from '../components/Card'
 import { Alert } from '../components/Alert'
+import { usePopup } from '../components/Popup'
 import type { ActivityLevel, Gender, Goal } from '../types'
 
 export default function ProfilePage() {
   const { profile, loading, saving, error, saveProfile } = useProfile()
+  const { status, refresh } = useBilling()
+  const { showPopup } = usePopup()
+  const [showPaywall, setShowPaywall] = useState(false)
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+
+  async function handleCancel() {
+    setShowCancelConfirm(false)
+    try {
+      await demoCancel()
+      refresh()
+      showPopup({ title: 'Subscription canceled', message: 'Pro access continues until the end of your billing period.', variant: 'info' })
+    } catch {
+      showPopup({ title: 'Failed to cancel', message: 'Please try again.', variant: 'error' })
+    }
+  }
 
   if (loading) {
     return (
@@ -57,6 +78,54 @@ export default function ProfilePage() {
         </CardHeader>
         <ProfileForm initialProfile={profile} saving={saving} onSave={handleSave} />
       </Card>
+
+      <Card className="mt-8">
+        <CardHeader>
+          <CardTitle>Subscription</CardTitle>
+        </CardHeader>
+        {status ? (
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="font-semibold text-ink-100">{status.isPro ? 'Pro' : 'Free'}</p>
+              {status.isPro && status.subscription && (
+                <p className="text-sm text-ink-400">
+                  {status.subscription.status === 'canceled'
+                    ? `Pro until ${new Date(status.subscription.currentPeriodEnd).toLocaleDateString()}`
+                    : `Renews ${new Date(status.subscription.currentPeriodEnd).toLocaleDateString()}`}
+                </p>
+              )}
+            </div>
+            {status.isPro ? (
+              <button
+                type="button"
+                onClick={() => setShowCancelConfirm(true)}
+                className="cursor-pointer rounded-xl border border-ink-600 px-4 py-2 text-sm font-semibold text-ink-300 transition-colors hover:bg-ink-800"
+              >
+                Cancel subscription
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowPaywall(true)}
+                className="cursor-pointer rounded-xl bg-brand-500 px-4 py-2 text-sm font-semibold text-ink-950 transition-colors hover:bg-brand-400"
+              >
+                Upgrade
+              </button>
+            )}
+          </div>
+        ) : null}
+      </Card>
+
+      <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
+
+      <ConfirmDialog
+        isOpen={showCancelConfirm}
+        title="Cancel subscription?"
+        message="You'll keep Pro access until the end of your billing period."
+        confirmLabel="Cancel subscription"
+        onConfirm={handleCancel}
+        onCancel={() => setShowCancelConfirm(false)}
+      />
     </div>
   )
 }

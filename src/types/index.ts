@@ -126,6 +126,20 @@ export interface RecommendationInput {
   about: string
 }
 
+export interface BillingStatus {
+  plan: 'free' | 'pro'
+  isPro: boolean
+  freePlansLimit: number
+  freePlansUsed: number
+  freePlansRemaining: number
+  subscription: {
+    status: 'active' | 'canceled' | 'expired'
+    interval: 'month' | 'year'
+    currentPeriodEnd: string
+  } | null
+  demoBilling: boolean
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant'
   content: string

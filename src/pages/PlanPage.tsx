@@ -3,9 +3,11 @@ import { useNavigate } from 'react-router-dom'
 import { ShieldCheck } from 'lucide-react'
 import { useProfile } from '../hooks/useProfile'
 import { useRecommendations } from '../hooks/useRecommendations'
+import { useBilling } from '../hooks/useBilling'
 import { fetchRecommendation, ApiError } from '../lib/api'
 import { RecommendationForm, type PlanFormValues } from '../features/recommendations/RecommendationForm'
 import { RecommendationView } from '../features/recommendations/RecommendationView'
+import { PaywallModal } from '../features/billing/PaywallModal'
 import { Card, CardHeader, CardTitle } from '../components/Card'
 import { Alert } from '../components/Alert'
 import type { Recommendation, RecommendationInput } from '../types'
@@ -13,12 +15,19 @@ import type { Recommendation, RecommendationInput } from '../types'
 export default function PlanPage() {
   const { profile, loading: profileLoading } = useProfile()
   const { saveRecommendation } = useRecommendations()
+  const { status, refresh } = useBilling()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState<Recommendation | null>(null)
+  const [showPaywall, setShowPaywall] = useState(false)
   const navigate = useNavigate()
 
   async function handleGenerate(values: PlanFormValues) {
+    if (status && !status.isPro && status.freePlansRemaining === 0) {
+      setShowPaywall(true)
+      return
+    }
+
     setLoading(true)
     setError('')
     setResult(null)
@@ -34,9 +43,15 @@ export default function PlanPage() {
       const recommendation = await fetchRecommendation(input)
       setResult(recommendation)
       await saveRecommendation(input, recommendation)
+      refresh()
     } catch (err) {
       if (err instanceof ApiError && err.status === 401) {
         navigate('/login', { state: { from: '/plan' } })
+        return
+      }
+      if (err instanceof ApiError && err.code === 'SUBSCRIPTION_REQUIRED') {
+        setShowPaywall(true)
+        refresh()
         return
       }
       setError(err instanceof Error ? err.message : 'Could not generate your plan. Please try again.')
@@ -68,6 +83,24 @@ export default function PlanPage() {
         </div>
       )}
 
+      {status && (
+        <div className="mb-4 flex justify-center">
+          {status.isPro ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-500/15 px-3 py-1 text-xs font-bold text-brand-400">
+              Pro
+            </span>
+          ) : status.freePlansRemaining > 0 ? (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-500/15 px-3 py-1 text-xs font-bold text-accent-400">
+              {status.freePlansRemaining} free plan{status.freePlansRemaining === 1 ? '' : 's'} left
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-800 px-3 py-1 text-xs font-bold text-ink-400">
+              Free plan used
+            </span>
+          )}
+        </div>
+      )}
+
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Your stats</CardTitle>
@@ -94,6 +127,8 @@ export default function PlanPage() {
           <RecommendationView recommendation={result} />
         </div>
       )}
+
+      <PaywallModal isOpen={showPaywall} onClose={() => setShowPaywall(false)} />
     </div>
   )
 }
