@@ -7,7 +7,6 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { supabase } from '../../lib/supabaseClient'
 import { getBillingStatus, demoSubscribe, demoCancel } from '../../lib/api'
 import { useAuth } from '../../hooks/useAuth'
 import type { BillingStatus } from '../../types'
@@ -75,22 +74,6 @@ export function BillingProvider({ children }: { children: ReactNode }) {
       return
     }
 
-    const channel = supabase
-      .channel(`billing-${user.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'entitlements',
-          filter: `user_id=eq.${user.id}`,
-        },
-        () => {
-          refresh()
-        },
-      )
-      .subscribe(() => {})
-
     refresh()
 
     const handleVisibility = () => {
@@ -106,7 +89,6 @@ export function BillingProvider({ children }: { children: ReactNode }) {
     window.addEventListener('focus', handleVisibility)
 
     return () => {
-      supabase.removeChannel(channel)
       document.removeEventListener('visibilitychange', handleVisibility)
       window.removeEventListener('focus', handleVisibility)
     }
