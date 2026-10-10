@@ -195,7 +195,7 @@ export function AvatarMenu() {
                 </span>
                 {status && (
                   <span
-                    className={`shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
+                    className={`mt-1.5 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold ${
                       status.isPro ? 'bg-brand-500/20 text-brand-400' : 'bg-ink-700 text-ink-400'
                     }`}
                   >

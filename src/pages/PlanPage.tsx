@@ -89,26 +89,6 @@ export default function PlanPage() {
         </div>
       )}
 
-      <div className="mb-4 flex justify-center">
-        {status?.isPro ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-500/15 px-3 py-1 text-xs font-bold text-brand-400">
-            Pro
-          </span>
-        ) : status && status.freePlansRemaining > 0 ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-accent-500/15 px-3 py-1 text-xs font-bold text-accent-400">
-            {status.freePlansRemaining} free plan{status.freePlansRemaining === 1 ? '' : 's'} left
-          </span>
-        ) : status ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-800 px-3 py-1 text-xs font-bold text-ink-400">
-            Free plan used
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-ink-800 px-3 py-1 text-xs font-bold text-ink-500">
-            <span className="h-3 w-3 animate-spin rounded-full border-2 border-ink-500 border-t-transparent" />
-          </span>
-        )}
-      </div>
-
       <Card className="mt-8">
         <CardHeader>
           <CardTitle>Your stats</CardTitle>

@@ -3,7 +3,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useRef,
   useState,
   type ReactNode,
 } from 'react'
@@ -27,7 +26,7 @@ export function BillingProvider({ children }: { children: ReactNode }) {
   const { user, loggingOut } = useAuth()
   const [status, setStatus] = useState<BillingStatus | null>(null)
   const [loading, setLoading] = useState(true)
-  const lastFocusRefreshRef = useRef(0)
+
 
   const refresh = useCallback(async () => {
     if (!user || loggingOut) {
@@ -76,22 +75,7 @@ export function BillingProvider({ children }: { children: ReactNode }) {
 
     refresh()
 
-    const handleVisibility = () => {
-      if (document.visibilityState === 'visible') {
-        const now = Date.now()
-        if (now - lastFocusRefreshRef.current > 10000) {
-          lastFocusRefreshRef.current = now
-          refresh()
-        }
-      }
-    }
-    document.addEventListener('visibilitychange', handleVisibility)
-    window.addEventListener('focus', handleVisibility)
-
-    return () => {
-      document.removeEventListener('visibilitychange', handleVisibility)
-      window.removeEventListener('focus', handleVisibility)
-    }
+    return () => {}
   }, [user, loggingOut, refresh])
 
   return (
